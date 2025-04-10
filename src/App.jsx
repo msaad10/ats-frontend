@@ -5,6 +5,7 @@ import Navbar from './components/Navbar'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
+import AdminDashboard from './pages/AdminDashboard'
 import Home from './pages/Home'
 import About from './pages/About'
 import NotFound from './pages/NotFound'
@@ -21,6 +22,21 @@ const ProtectedRoute = ({ children }) => {
 
   if (!user) {
     return <Navigate to="/login" />
+  }
+
+  return children
+}
+
+// Admin Route component
+const AdminRoute = ({ children }) => {
+  const { user, loading } = useAuth()
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
+  if (!user || user.role !== 'ADMIN') {
+    return <Navigate to="/dashboard" />
   }
 
   return children
@@ -43,6 +59,14 @@ function App() {
                 <ProtectedRoute>
                   <Dashboard />
                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
               }
             />
             <Route path="/jobs/*" element={<Jobs />} />
