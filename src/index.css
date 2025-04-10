@@ -1,0 +1,492 @@
+:root {
+  --primary-dark: #031716;
+  --secondary-dark: #032F30;
+  --primary-light: #0A7075;
+  --secondary-light: #0C969C;
+  --accent-primary: #6BA3BE;
+  --accent-secondary: #274D60;
+  --background-light: #D4D8DD;
+  --text-primary: #031716;
+  --text-secondary: #032F30;
+  --text-light: #E0F2F1;
+  --status-interviewing: #0A7075;
+  --status-offered: #059669;
+  --status-rejected: #DC2626;
+  --status-applied: #2563EB;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  min-height: 100vh;
+  background-color: var(--background-light);
+  color: var(--text-primary);
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.auth-container {
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-dark) 100%);
+  padding: 2rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 450px;
+  padding: 2rem;
+  background: var(--background-light);
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  color: var(--text-primary);
+}
+
+.dashboard-container {
+  flex: 1;
+  min-height: calc(100vh - 56px);
+  padding: 2rem;
+  background-color: var(--background-light);
+  color: var(--text-primary);
+}
+
+.navbar {
+  background-color: var(--primary-dark) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.navbar .nav-link {
+  color: var(--text-light) !important;
+}
+
+.navbar .nav-link:hover {
+  color: var(--accent-primary) !important;
+}
+
+.navbar-brand {
+  color: var(--text-light) !important;
+}
+
+.card {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  border: none;
+  border-radius: 12px;
+  background-color: var(--background-light);
+  color: var(--text-primary);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+}
+
+.form-control {
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--accent-secondary);
+  background-color: var(--background-light);
+  color: var(--text-primary);
+}
+
+.form-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(10, 112, 117, 0.3);
+  border-color: var(--primary-light);
+  background-color: var(--background-light);
+  color: var(--text-primary);
+}
+
+.form-control::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.btn-primary {
+  background-color: var(--primary-light);
+  border-color: var(--primary-light);
+  color: var(--text-light);
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary-light);
+  border-color: var(--secondary-light);
+  color: var(--text-light);
+}
+
+.btn-outline-primary {
+  color: var(--primary-light);
+  border-color: var(--primary-light);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary-light);
+  color: var(--text-light);
+}
+
+.btn-secondary {
+  background-color: var(--accent-secondary);
+  border-color: var(--accent-secondary);
+  color: var(--text-light);
+}
+
+.btn-secondary:hover {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: var(--text-light);
+}
+
+.btn-outline-secondary {
+  color: var(--accent-secondary);
+  border-color: var(--accent-secondary);
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--accent-secondary);
+  border-color: var(--accent-secondary);
+  color: var(--text-light);
+}
+
+.alert {
+  border-radius: 8px;
+  border: none;
+  background-color: var(--background-light);
+  color: var(--text-primary);
+}
+
+.badge {
+  padding: 0.5em 0.75em;
+  font-weight: 500;
+  border-radius: 6px;
+  color: var(--text-light) !important;
+}
+
+.badge.bg-primary {
+  background-color: var(--primary-light) !important;
+}
+
+.badge.bg-secondary {
+  background-color: var(--accent-secondary) !important;
+}
+
+.badge.bg-info {
+  background-color: var(--status-applied) !important;
+}
+
+.badge.bg-success {
+  background-color: var(--status-offered) !important;
+}
+
+.badge.bg-danger {
+  background-color: var(--status-rejected) !important;
+}
+
+.badge.bg-warning {
+  background-color: var(--status-interviewing) !important;
+}
+
+.table {
+  background-color: var(--background-light);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  color: var(--text-primary);
+}
+
+.table thead th {
+  background-color: var(--primary-dark);
+  color: var(--text-light);
+  border: none;
+  font-weight: 600;
+  padding: 1rem;
+}
+
+.table tbody td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--accent-secondary);
+  background-color: var(--background-light);
+}
+
+.table tbody tr:hover {
+  background-color: var(--accent-primary);
+  color: var(--text-light);
+}
+
+.modal-content {
+  background-color: var(--background-light);
+  border: none;
+  border-radius: 12px;
+  color: var(--text-primary);
+}
+
+.modal-header {
+  background-color: var(--primary-dark);
+  color: var(--text-light);
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-footer {
+  border-top: none;
+  background-color: var(--background-light);
+}
+
+@media (max-width: 768px) {
+  .auth-card {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .dashboard-container {
+    padding: 1rem;
+  }
+}
+
+.rating-stars .far.fa-star,
+.rating-stars .fas.fa-star {
+  color: var(--primary-light);
+}
+
+.rating-stars .far.fa-star {
+  opacity: 0.5;
+}
+
+.rating-stars:hover .far.fa-star,
+.rating-stars:hover .fas.fa-star {
+  color: var(--secondary-light);
+}
+
+/* Candidate Profile Styles */
+.candidate-profile {
+  padding: 2rem;
+}
+
+.profile-header {
+  background-color: var(--background-light);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.profile-header h1 {
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.section-title {
+  color: var(--primary-dark);
+  font-weight: 600;
+  border-bottom: 2px solid var(--primary-light);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  color: var(--text-primary);
+}
+
+.info-item i {
+  color: var(--primary-light);
+  width: 1.5rem;
+}
+
+.summary-text {
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.skill-badge {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background-color: var(--primary-light) !important;
+  color: var(--text-light) !important;
+}
+
+.experience-item,
+.education-item {
+  padding: 1rem;
+  background-color: rgba(10, 112, 117, 0.05);
+  border-radius: 8px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.experience-item:hover,
+.education-item:hover {
+  transform: translateX(5px);
+}
+
+.experience-item h5,
+.education-item h5 {
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.experience-item p,
+.education-item p {
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+/* Feedback Form Styles */
+.feedback-form {
+  background-color: var(--background-light);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.feedback-form h4 {
+  color: var(--primary-dark);
+  margin-bottom: 1.5rem;
+}
+
+/* Feedback List Styles */
+.feedback-list {
+  margin-top: 2rem;
+}
+
+.feedback-list h4 {
+  color: var(--primary-dark);
+  margin-bottom: 1.5rem;
+}
+
+.feedback-list .card {
+  margin-bottom: 1rem;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.feedback-list .card-body {
+  padding: 1.5rem;
+}
+
+.feedback-list .card-title {
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.feedback-list .text-muted {
+  color: var(--text-secondary) !important;
+}
+
+/* Job Detail Styles */
+.job-detail {
+  padding: 2rem;
+}
+
+.job-header {
+  background-color: var(--background-light);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.job-header h1 {
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.description-text {
+  color: var(--text-primary);
+  line-height: 1.8;
+  font-size: 1.1rem;
+}
+
+.job-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  color: var(--text-primary);
+}
+
+.detail-item i {
+  color: var(--primary-light);
+  width: 1.5rem;
+}
+
+.requirement-item,
+.responsibility-item,
+.benefit-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  border-left: none;
+  border-right: none;
+  background-color: var(--background-light);
+  border-bottom: 1px solid var(--accent-secondary);
+}
+
+.requirement-item:last-child,
+.responsibility-item:last-child,
+.benefit-item:last-child {
+  border-bottom: none;
+}
+
+.requirement-item:hover,
+.responsibility-item:hover,
+.benefit-item:hover {
+  background-color: rgba(10, 112, 117, 0.05);
+  transform: translateX(5px);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Table and List Group Styles */
+.list-group {
+  background-color: var(--background-light);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.list-group-item {
+  background-color: var(--background-light);
+  border-color: var(--accent-secondary);
+  color: var(--text-primary);
+  padding: 1rem;
+}
+
+.list-group-item:hover {
+  background-color: rgba(10, 112, 117, 0.05);
+}
