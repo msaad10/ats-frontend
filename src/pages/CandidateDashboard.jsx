@@ -10,25 +10,31 @@ const CandidateDashboard = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [jobs, setJobs] = useState([]);
+  const [recentJobs, setRecentJobs] = useState([]);
   const [appliedJobs, setAppliedJobs] = useState([]);
   const [scheduledInterviews, setScheduledInterviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [showResumeModal, setShowResumeModal] = useState(false);
   const [resumeFile, setResumeFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [jobsResponse, appliedJobsResponse, interviewsResponse] = await Promise.all([
+        const [jobsResponse, appliedJobsResponse, interviewsResponse, recentJobsResponse] = await Promise.all([
           jobService.getAllJobs(),
           candidateService.getAppliedJobs(user.id),
-          candidateService.getCandidateInterviews(user.id)
+          candidateService.getCandidateInterviews(user.id),
+          jobService.getRecentJobs()
         ]);
         setJobs(jobsResponse);
+        setRecentJobs(recentJobsResponse);
         setAppliedJobs(appliedJobsResponse);
         setScheduledInterviews(interviewsResponse);
       } catch (err) {
@@ -49,20 +55,28 @@ const CandidateDashboard = () => {
 
   const handleResumeUpload = async () => {
     if (!resumeFile) {
-      setError('Please select a file');
+      setUploadError('Please select a file');
       return;
     }
 
     try {
       setUploading(true);
+      setUploadError(null);
+
+      // Create FormData and append the file
       const formData = new FormData();
-      formData.append('resume', resumeFile);
+      formData.append('file', resumeFile);
+
+      // Send the request with FormData
       await candidateService.uploadResume(formData);
-      setError(null);
+      
+      setShowResumeModal(false);
       setResumeFile(null);
+      setSuccess('Resume uploaded successfully!');
+      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError('Failed to upload resume');
-      console.error(err);
+      console.log("err", err);
+      setUploadError(err.response?.data?.message || 'Failed to upload resume');
     } finally {
       setUploading(false);
     }
@@ -75,14 +89,24 @@ const CandidateDashboard = () => {
 
   const handleConfirmApply = async () => {
     try {
+      setLoading(true);
+      setError(null);
+      setShowModal(false);
+
+      // Apply for the job
       await candidateService.applyForJob({
         jobId: selectedJob.id,
         userId: user.id
       });
       
-      // Refresh applied jobs list
-      const response = await candidateService.getAppliedJobs(user.id);
-      setAppliedJobs(response.data);
+      // Refresh both jobs and applied jobs lists
+      const [jobsResponse, appliedJobsResponse] = await Promise.all([
+        jobService.getAllJobs(),
+        candidateService.getAppliedJobs(user.id)
+      ]);
+
+      setJobs(jobsResponse);
+      setAppliedJobs(appliedJobsResponse);
       
       // Close modal and reset selected job
       setShowModal(false);
@@ -90,6 +114,8 @@ const CandidateDashboard = () => {
     } catch (err) {
       setError('Failed to apply for job');
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -109,15 +135,6 @@ const CandidateDashboard = () => {
       <Row className="mb-4">
         <Col>
           <h2>Candidate Dashboard</h2>
-          {user && (
-            <div className="mb-3">
-              <p>Welcome, {user.firstName} {user.lastName}</p>
-              <p>Email: {user.email}</p>
-            </div>
-          )}
-          <Button variant="outline-danger" onClick={handleLogout}>
-            Logout
-          </Button>
         </Col>
       </Row>
 
@@ -126,36 +143,22 @@ const CandidateDashboard = () => {
       {/* Resume Upload Section - Minimal with right-aligned buttons */}
       <Row className="mb-4">
         <Col>
-          <Card className="shadow-sm">
-            <Card.Body className="p-3">
-              <div className="d-flex justify-content-end align-items-center gap-2">
-                <Form.Control
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={(e) => setResumeFile(e.target.files[0])}
-                  className="d-none"
-                  id="resume-upload"
-                />
-                <Button
-                  variant="outline-primary"
-                  onClick={() => document.getElementById('resume-upload').click()}
-                  size="sm"
-                >
-                  Browse
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={handleResumeUpload}
-                  disabled={!resumeFile || uploading}
-                  size="sm"
-                >
-                  {uploading ? 'Uploading...' : 'Upload Resume'}
-                </Button>
-              </div>
-              {resumeFile && (
-                <div className="text-muted small mt-2">
-                  Selected file: {resumeFile.name}
-                </div>
+          <Card>
+            <Card.Header className="d-flex justify-content-between align-items-center">
+              <h4 className="mb-0">Resume</h4>
+              <Button 
+                variant="primary" 
+                size="sm"
+                onClick={() => setShowResumeModal(true)}
+              >
+                Upload Resume
+              </Button>
+            </Card.Header>
+            <Card.Body>
+              {appliedJobs?.length > 0 ? (
+                <p>Your resume has been uploaded and is being used for job applications.</p>
+              ) : (
+                <p>Upload your resume to start applying for jobs.</p>
               )}
             </Card.Body>
           </Card>
@@ -166,12 +169,19 @@ const CandidateDashboard = () => {
       <Row className="mb-4">
         <Col>
           <Card>
-            <Card.Header>
-              <h4>Available Jobs</h4>
+            <Card.Header className="d-flex justify-content-between align-items-center">
+              <h4 className="mb-0">Recent Jobs</h4>
+              <Button 
+                variant="outline-primary" 
+                size="sm"
+                onClick={() => navigate('/jobs')}
+              >
+                View All Jobs
+              </Button>
             </Card.Header>
             <Card.Body>
               <div className="row">
-                {jobs.map(job => (
+                {recentJobs.map(job => (
                   <Col key={job.id} md={6} lg={4} className="mb-3">
                     <Card>
                       <Card.Body>
@@ -185,9 +195,9 @@ const CandidateDashboard = () => {
                         <Button
                           variant="primary"
                           onClick={() => handleApplyJob(job)}
-                          disabled={appliedJobs.some(applied => applied.jobId === job.id)}
+                          disabled={appliedJobs?.some(applied => applied.jobId === job.id)}
                         >
-                          {appliedJobs.some(applied => applied.jobId === job.id) ? 'Applied' : 'Apply'}
+                          {appliedJobs?.some(applied => applied.jobId === job.id) ? 'Applied' : 'Apply'}
                         </Button>
                       </Card.Body>
                     </Card>
@@ -215,20 +225,22 @@ const CandidateDashboard = () => {
                     <th>Date & Time</th>
                     <th>Status</th>
                     <th>Interviewer</th>
+                    <th>Details</th>
                   </tr>
                 </thead>
                 <tbody>
                   {scheduledInterviews.map((interview) => (
                     <tr key={interview.id}>
-                      <td>{interview.job.title}</td>
+                      <td>{interview.jobTitle}</td>
                       <td>{interview.interviewType}</td>
-                      <td>{new Date(interview.scheduledTime).toLocaleString()}</td>
+                      <td>{new Date(interview.dateTime).toLocaleString()}</td>
                       <td>
-                        <Badge bg={getStatusColor(interview.status)}>
-                          {interview.status}
+                        <Badge bg={getStatusColor(interview.result)}>
+                          {interview.result}
                         </Badge>
                       </td>
-                      <td>{interview.interviewer.firstName} {interview.interviewer.lastName}</td>
+                      <td>{interview.interviewerName}</td>
+                      <td>{interview.details}</td>
                     </tr>
                   ))}
                   {scheduledInterviews.length === 0 && (
@@ -258,12 +270,12 @@ const CandidateDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {appliedJobs.map((application) => (
+              {appliedJobs?.map((application) => (
                 <tr key={application.id}>
                   <td>{application.jobTitle}</td>
                   <td>
                     <span className={`badge bg-${getStatusColor(application.currentStage)}`}>
-                      {application.status}
+                      {application.currentStage}
                     </span>
                   </td>
                   <td>{new Date(application.appliedAt).toLocaleDateString()}</td>
@@ -273,6 +285,54 @@ const CandidateDashboard = () => {
           </Table>
         </Col>
       </Row>
+
+      {/* Resume Upload Modal */}
+      <Modal show={showResumeModal} onHide={() => setShowResumeModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Upload Resume</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="resumeFile" className="mb-3">
+              <Form.Label>Select Resume (PDF or DOC)</Form.Label>
+              <Form.Control
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={(e) => setResumeFile(e.target.files[0])}
+              />
+              <Form.Text className="text-muted">
+                Supported formats: PDF
+              </Form.Text>
+            </Form.Group>
+            {uploadError && <Alert variant="danger">{uploadError}</Alert>}
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowResumeModal(false)}>
+            Cancel
+          </Button>
+          <Button 
+            variant="primary" 
+            onClick={handleResumeUpload}
+            disabled={uploading || !resumeFile}
+          >
+            {uploading ? (
+              <>
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+                <span className="ms-2">Uploading...</span>
+              </>
+            ) : (
+              'Upload'
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* Application Confirmation Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
@@ -286,8 +346,25 @@ const CandidateDashboard = () => {
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleConfirmApply}>
-            Confirm
+          <Button 
+            variant="primary" 
+            onClick={handleConfirmApply}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+                <span className="ms-2">Applying...</span>
+              </>
+            ) : (
+              'Confirm'
+            )}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -298,17 +375,17 @@ const CandidateDashboard = () => {
 const getStatusColor = (status) => {
   switch (status) {
     case 'PENDING':
-      return 'warning';
+      return 'info';
     case 'ACCEPTED':
       return 'success';
-    case 'REJECTED':
+    case 'FAILED':
       return 'danger';
     case 'SCHEDULED':
       return 'info';
     case 'COMPLETED':
       return 'primary';
     default:
-      return 'secondary';
+      return 'primary';
   }
 };
 

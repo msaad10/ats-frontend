@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useInRouterContext, useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
 
 const AuthContext = createContext();
@@ -54,8 +54,7 @@ export const AuthProvider = ({ children }) => {
       const decodedToken = parseJwt(token);
       const userData = {
         id: decodedToken.userId,
-        // firstName: decodedToken.firstName,
-        // lastName: decodedToken.lastName,
+        userName: decodedToken.userName,
         // email: decodedToken.email,
         role: decodedToken.role
       };
@@ -71,7 +70,7 @@ export const AuthProvider = ({ children }) => {
           navigate('/recruiter/dashboard');
           break;
         case 'INTERVIEWER':
-          navigate('/interviewer');
+          navigate('/interviewer/dashboard');
           break;
         case 'CANDIDATE':
           navigate('/candidate/dashboard');

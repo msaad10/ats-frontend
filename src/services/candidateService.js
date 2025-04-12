@@ -30,21 +30,17 @@ const candidateService = {
   },
 
   // Get candidate's resume
-  getResume: async (userId) => {
-    try {
-      const response = await api.get(`/candidates/${userId}/resume`, {
-        responseType: 'blob'
-      });
-      return response;
-    } catch (error) {
-      throw error;
-    }
+  getResume: async (candidateId) => {
+    const response = await api.get(`/candidates/resume/${candidateId}`, {
+      responseType: 'blob'  // This is important for handling binary data
+    });
+    return response;
   },
 
   // Get all interviewers
   getInterviewers: async () => {
     try {
-      const response = await api.get('/candidates/interviewers');
+      const response = await api.get('/interviewers');
       return response.data;
     } catch (error) {
       throw error;
@@ -54,7 +50,14 @@ const candidateService = {
   // Schedule an interview
   scheduleInterview: async (interviewData) => {
     try {
-      const response = await api.post('/candidates/interviews', interviewData);
+      const response = await api.post('/interviews', {
+        interviewerId: interviewData.interviewerId,
+        jobCandidateId: interviewData.candidateId,
+        jobId: interviewData.jobId,
+        interviewType: interviewData.interviewType,
+        dateTime: interviewData.scheduledTime,
+        details: interviewData.details
+      });
       return response.data;
     } catch (error) {
       throw error;

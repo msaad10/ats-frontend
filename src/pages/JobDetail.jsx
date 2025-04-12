@@ -74,7 +74,6 @@ const JobDetail = () => {
       </Container>
     );
   }
-  console.log(job);
 
   return (
     <Container className="mt-4">

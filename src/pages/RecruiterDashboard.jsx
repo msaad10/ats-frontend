@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Table, Modal, Form, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Table, Modal, Form, Alert, Spinner, Badge } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { saveAs } from 'file-saver';
 import jobService from '../services/jobService';
 import candidateService from '../services/candidateService';
+import interviewService from '../services/interviewService';
 
 const RecruiterDashboard = () => {
   const [jobs, setJobs] = useState([]);
@@ -29,8 +30,23 @@ const RecruiterDashboard = () => {
     description: '',
     status: 'OPEN'
   });
+  const [showEditJobModal, setShowEditJobModal] = useState(false);
+  const [editingJob, setEditingJob] = useState(null);
+  const [editJobForm, setEditJobForm] = useState({
+    title: '',
+    department: '',
+    location: '',
+    description: '',
+    status: 'OPEN'
+  });
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [selectedInterview, setSelectedInterview] = useState(null);
+  const [interviewDetails, setInterviewDetails] = useState(null);
+  const [loadingFeedback, setLoadingFeedback] = useState(false);
+  const [feedbackError, setFeedbackError] = useState('');
+  const [candidateInterviews, setCandidateInterviews] = useState([]);
 
   const departments = [
     'Engineering',
@@ -57,7 +73,9 @@ const RecruiterDashboard = () => {
           jobService.getAllJobs(),
           // candidateService.getInterviewers()
         ]);
-        setJobs(jobsResponse);
+        if(jobsResponse){
+          setJobs(jobsResponse);
+        }
         // setInterviewers(interviewersResponse.data);
       } catch (err) {
         setError('Failed to fetch data');
@@ -130,6 +148,119 @@ const RecruiterDashboard = () => {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validate form
+    const errors = {};
+    if (!jobForm.title) errors.title = 'Job title is required';
+    if (!jobForm.department) errors.department = 'Department is required';
+    if (!jobForm.location) errors.location = 'Location is required';
+    if (!jobForm.description) errors.description = 'Description is required';
+    
+    if (Object.keys(errors).length > 0) {
+      setError(errors);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      // Create the job
+      await jobService.createJob(jobForm);
+      
+      // Close the modal first
+      setShowJobModal(false);
+      
+      // Reset the form
+      setJobForm({
+        title: '',
+        department: '',
+        location: '',
+        description: '',
+        status: 'OPEN'
+      });
+      
+      // Fetch the updated job list
+      const jobsResponse = await jobService.getAllJobs();
+      if (jobsResponse) {
+        setJobs(jobsResponse);
+      }
+      
+      // Redirect to dashboard
+      navigate('/recruiter/dashboard');
+      
+    } catch (err) {
+      setError('Failed to create job');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditJob = (job) => {
+    setEditingJob(job);
+    setEditJobForm({
+      title: job.title,
+      department: job.department,
+      location: job.location,
+      description: job.description,
+      status: job.status
+    });
+    setShowEditJobModal(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validate form
+    const errors = {};
+    if (!editJobForm.title) errors.title = 'Job title is required';
+    if (!editJobForm.department) errors.department = 'Department is required';
+    if (!editJobForm.location) errors.location = 'Location is required';
+    if (!editJobForm.description) errors.description = 'Description is required';
+    
+    if (Object.keys(errors).length > 0) {
+      setError(errors);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      // Update the job
+      await jobService.updateJob(editingJob.id, editJobForm);
+      
+      // Close the modal
+      setShowEditJobModal(false);
+      
+      // Fetch the updated job list
+      const jobsResponse = await jobService.getAllJobs();
+      if (jobsResponse) {
+        setJobs(jobsResponse);
+      }
+    } catch (err) {
+      setError('Failed to update job');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewFeedback = async (candidate) => {
+    try {
+      setLoadingFeedback(true);
+      setFeedbackError('');
+      setSelectedCandidate(candidate);
+      const response = await interviewService.getCandidateInterviews(candidate.user.id);
+      setCandidateInterviews(response);
+      setShowFeedbackModal(true);
+    } catch (err) {
+      setFeedbackError('Failed to fetch interview details');
+      console.error(err);
+    } finally {
+      setLoadingFeedback(false);
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -139,16 +270,6 @@ const RecruiterDashboard = () => {
       <Row className="mb-4">
         <Col>
           <h2>Recruiter Dashboard</h2>
-          {user && (
-            <div className="mb-3">
-              <p>Welcome, {user.firstName} {user.lastName}</p>
-              <p>Email: {user.email}</p>
-              <p>Role: {user.role}</p>
-            </div>
-          )}
-          <Button variant="outline-danger" onClick={handleLogout}>
-            Logout
-          </Button>
         </Col>
       </Row>
 
@@ -192,9 +313,17 @@ const RecruiterDashboard = () => {
                         <Button
                           variant="primary"
                           size="sm"
+                          className="me-2"
                           onClick={() => handleViewJob(job)}
                         >
                           View
+                        </Button>
+                        <Button
+                          variant="warning"
+                          size="sm"
+                          onClick={() => handleEditJob(job)}
+                        >
+                          Edit
                         </Button>
                       </td>
                     </tr>
@@ -242,12 +371,12 @@ const RecruiterDashboard = () => {
       </Modal>
 
       {/* Job Creation Modal */}
-      <Modal show={showJobModal} onHide={() => setShowJobModal(false)}>
+      <Modal show={showJobModal} onHide={() => setShowJobModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Create New Job</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form onSubmit={handleCreateJob}>
+          <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
               <Form.Label>Job Title</Form.Label>
               <Form.Control
@@ -379,6 +508,139 @@ const RecruiterDashboard = () => {
             </Button>
           </Form>
         </Modal.Body>
+      </Modal>
+
+      {/* Edit Job Modal */}
+      <Modal show={showEditJobModal} onHide={() => setShowEditJobModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Job</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleEditSubmit}>
+            <Form.Group className="mb-3">
+              <Form.Label>Job Title</Form.Label>
+              <Form.Control
+                type="text"
+                value={editJobForm.title}
+                onChange={(e) => setEditJobForm({ ...editJobForm, title: e.target.value })}
+                placeholder="Enter job title"
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Department</Form.Label>
+              <Form.Select
+                value={editJobForm.department}
+                onChange={(e) => setEditJobForm({ ...editJobForm, department: e.target.value })}
+                required
+              >
+                <option value="">Select Department</option>
+                {departments.map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Location</Form.Label>
+              <Form.Select
+                value={editJobForm.location}
+                onChange={(e) => setEditJobForm({ ...editJobForm, location: e.target.value })}
+                required
+              >
+                <option value="">Select Location</option>
+                {locations.map(loc => (
+                  <option key={loc} value={loc}>{loc}</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Description</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={4}
+                value={editJobForm.description}
+                onChange={(e) => setEditJobForm({ ...editJobForm, description: e.target.value })}
+                placeholder="Enter job description"
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Status</Form.Label>
+              <Form.Select
+                value={editJobForm.status}
+                onChange={(e) => setEditJobForm({ ...editJobForm, status: e.target.value })}
+                required
+              >
+                <option value="OPEN">Open</option>
+                <option value="CLOSED">Closed</option>
+              </Form.Select>
+            </Form.Group>
+
+            <Button variant="primary" type="submit" disabled={loading}>
+              {loading ? 'Updating...' : 'Update Job'}
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      {/* Feedback Modal */}
+      <Modal show={showFeedbackModal} onHide={() => setShowFeedbackModal(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>
+            Interview Feedback for {selectedCandidate?.user.name}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+          {loadingFeedback ? (
+            <div className="text-center">
+              <Spinner animation="border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+            </div>
+          ) : feedbackError ? (
+            <Alert variant="danger">{feedbackError}</Alert>
+          ) : candidateInterviews.length === 0 ? (
+            <Alert variant="info">No interviews scheduled yet.</Alert>
+          ) : (
+            <Table striped hover responsive>
+              <thead>
+                <tr>
+                  <th>Interview Type</th>
+                  <th>Date & Time</th>
+                  <th>Interviewer</th>
+                  <th>Result</th>
+                  <th>Feedback</th>
+                </tr>
+              </thead>
+              <tbody>
+                {candidateInterviews.map((interview) => (
+                  <tr key={interview.id}>
+                    <td>{interview.interviewType}</td>
+                    <td>{new Date(interview.dateTime).toLocaleString()}</td>
+                    <td>{interview.interviewerName || '-'}</td>
+                    <td>
+                      <Badge bg={interview.result === 'PASS' ? 'success' : 'danger'}>
+                        {interview.result || 'Pending'}
+                      </Badge>
+                    </td>
+                    <td className="text-break" style={{ maxWidth: '300px' }}>
+                      {interview.feedback || '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowFeedbackModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
       </Modal>
     </Container>
   );

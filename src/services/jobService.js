@@ -11,6 +11,15 @@ const jobService = {
     }
   },
 
+  getRecentJobs: async () => {
+    try {
+      const response = await api.get('/jobs/recent');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   // Get job by ID
   getJobById: async (id) => {
     try {
