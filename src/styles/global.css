@@ -1,0 +1,39 @@
+/* App Background */
+body {
+  background-color: #f0f2f5;
+}
+
+/* Table Styles */
+.table-responsive {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+}
+
+.table-responsive table {
+  margin-bottom: 0;
+}
+
+.table-responsive tbody tr:hover {
+  background-color: #f0f7ff !important;
+}
+
+/* Card Styles */
+.card {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Button Styles */
+.btn-gradient {
+  background: linear-gradient(to right, #6a11cb, #2575fc);
+  border: none;
+  color: white;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(to right, #5a0fb0, #1e63d6);
+  color: white;
+} 

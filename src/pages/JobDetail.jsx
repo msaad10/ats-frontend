@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Card, Button, Row, Col, Alert, Badge } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import jobService from '../services/jobService';
+import { theme } from '../styles/theme';
 
 const JobDetail = () => {
   const { id } = useParams();
@@ -84,15 +85,26 @@ const JobDetail = () => {
               <h2>{job.title}</h2>
               <p className="text-muted">{job.department}</p>
               <div className="mb-3">
-                <Badge bg="secondary" className="me-2">{job.location}</Badge>
+                <Badge style={{ 
+                  background: theme.colors.primary.gradientButton,
+                  padding: '0.5rem 1rem'
+                }}>
+                  {job.location}
+                </Badge>
               </div>
             </Col>
             <Col md={4} className="text-md-end">
               {user?.role === 'CANDIDATE' && (
                 <Button
-                  variant={applied ? "success" : "primary"}
+                  className={`btn-gradient ${applied ? 'disabled' : ''}`}
                   onClick={handleApply}
                   disabled={applied || applying}
+                  style={{
+                    border: 'none',
+                    padding: '0.5rem 1rem',
+                    fontWeight: 500,
+                    opacity: applied ? 0.7 : 1
+                  }}
                 >
                   {applied ? 'Applied' : applying ? 'Applying...' : 'Apply Now'}
                 </Button>

@@ -6,6 +6,8 @@ import { saveAs } from 'file-saver';
 import jobService from '../services/jobService';
 import candidateService from '../services/candidateService';
 import interviewService from '../services/interviewService';
+import StyledTable from '../components/common/StyledTable';
+import { theme } from '../styles/theme';
 
 const RecruiterDashboard = () => {
   const [jobs, setJobs] = useState([]);
@@ -266,70 +268,73 @@ const RecruiterDashboard = () => {
   }
 
   return (
-    <Container fluid>
-      <Row className="mb-4">
-        <Col>
-          <h2>Recruiter Dashboard</h2>
-        </Col>
-      </Row>
-
-      {error && <Alert variant="danger">{error}</Alert>}
+    <Container fluid className="py-4">
+      {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
 
       <Row className="mb-4">
-        <Col>
-          <Button variant="primary" onClick={() => setShowJobModal(true)}>
-            Create New Job
-          </Button>
-        </Col>
-      </Row>
-
-      <Row>
         <Col>
           <Card>
-            <Card.Header>
-              <h4>Job Listings</h4>
+            <Card.Header style={{ background: `rgb(93, 74, 112)` }}>
+              <div className="d-flex justify-content-between align-items-center">
+                <h5 className="mb-0" style={{ color: theme.colors.text.light }}>Active Jobs</h5>
+                <Button 
+                  className="btn-gradient"
+                  onClick={() => setShowJobModal(true)}
+                >
+                  Create New Job
+                </Button>
+              </div>
             </Card.Header>
             <Card.Body>
-              <Table striped hover>
+              <StyledTable>
                 <thead>
                   <tr>
                     <th>Title</th>
                     <th>Department</th>
                     <th>Location</th>
                     <th>Status</th>
-                    <th>Created At</th>
+                    <th>Applications</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {jobs.map(job => (
                     <tr key={job.id}>
-                      <td>{job.title}</td>
-                      <td>{job.department}</td>
-                      <td>{job.location}</td>
-                      <td>{job.status}</td>
-                      <td>{new Date(job.createdAt).toLocaleDateString()}</td>
+                      <td style={{ color: theme.colors.text.primary }}>{job.title}</td>
+                      <td style={{ color: theme.colors.text.secondary }}>{job.department}</td>
+                      <td style={{ color: theme.colors.text.secondary }}>{job.location}</td>
                       <td>
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          className="me-2"
-                          onClick={() => handleViewJob(job)}
-                        >
-                          View
-                        </Button>
-                        <Button
-                          variant="warning"
-                          size="sm"
-                          onClick={() => handleEditJob(job)}
-                        >
-                          Edit
-                        </Button>
+                        <Badge style={{ 
+                          background: job.status === 'OPEN' ? theme.colors.primary.gradientButton :
+                                    job.status === 'CLOSED' ? 'linear-gradient(to right, #dc3545, #c82333)' :
+                                    'linear-gradient(to right, #6c757d, #495057)'
+                        }}>
+                          {job.status}
+                        </Badge>
+                      </td>
+                      <td style={{ color: theme.colors.text.secondary }}>{job.applicationCount || 0}</td>
+                      <td>
+                        <div className="d-flex gap-2">
+                          <Button
+                            className="btn-gradient"
+                            size="sm"
+                            onClick={() => navigate(`/recruiter/jobs/${job.id}`)}
+                          >
+                            View Details
+                          </Button>
+                          <Button
+                            className="btn-gradient"
+                            size="sm"
+                            onClick={() => handleEditJob(job)}
+                          >
+                            Edit
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
-              </Table>
+              </StyledTable>
             </Card.Body>
           </Card>
         </Col>
@@ -337,7 +342,7 @@ const RecruiterDashboard = () => {
 
       {/* Job Details Modal */}
       <Modal show={showJobDetailsModal} onHide={() => setShowJobDetailsModal(false)} size="lg">
-        <Modal.Header closeButton>
+        <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)` }}>
           <Modal.Title>Job Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -372,7 +377,7 @@ const RecruiterDashboard = () => {
 
       {/* Job Creation Modal */}
       <Modal show={showJobModal} onHide={() => setShowJobModal(false)} size="lg">
-        <Modal.Header closeButton>
+        <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)` }}>
           <Modal.Title>Create New Job</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -440,7 +445,7 @@ const RecruiterDashboard = () => {
               </Form.Select>
             </Form.Group>
 
-            <Button variant="primary" type="submit">
+            <Button className='btn-gradient' type="submit">
               Create Job
             </Button>
           </Form>
@@ -449,7 +454,7 @@ const RecruiterDashboard = () => {
 
       {/* Interview Scheduling Modal */}
       <Modal show={showInterviewModal} onHide={() => setShowInterviewModal(false)}>
-        <Modal.Header closeButton>
+        <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)` }}>
           <Modal.Title>Schedule Interview</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -512,84 +517,131 @@ const RecruiterDashboard = () => {
 
       {/* Edit Job Modal */}
       <Modal show={showEditJobModal} onHide={() => setShowEditJobModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Edit Job</Modal.Title>
+        <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)`, borderBottom: '1px solid #e5e7eb' }}>
+          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+            Edit Job
+          </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={handleEditSubmit}>
+        <Modal.Body style={{ background: 'white' }}>
+          <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Job Title</Form.Label>
+              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>Title</Form.Label>
               <Form.Control
                 type="text"
+                name="title"
                 value={editJobForm.title}
                 onChange={(e) => setEditJobForm({ ...editJobForm, title: e.target.value })}
-                placeholder="Enter job title"
-                required
+                style={{ 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '0.375rem',
+                  padding: '0.5rem'
+                }}
               />
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Department</Form.Label>
-              <Form.Select
+              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>Department</Form.Label>
+              <Form.Control
+                type="text"
+                name="department"
                 value={editJobForm.department}
                 onChange={(e) => setEditJobForm({ ...editJobForm, department: e.target.value })}
-                required
-              >
-                <option value="">Select Department</option>
-                {departments.map(dept => (
-                  <option key={dept} value={dept}>{dept}</option>
-                ))}
-              </Form.Select>
+                style={{ 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '0.375rem',
+                  padding: '0.5rem'
+                }}
+              />
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Location</Form.Label>
-              <Form.Select
+              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>Location</Form.Label>
+              <Form.Control
+                type="text"
+                name="location"
                 value={editJobForm.location}
                 onChange={(e) => setEditJobForm({ ...editJobForm, location: e.target.value })}
-                required
-              >
-                <option value="">Select Location</option>
-                {locations.map(loc => (
-                  <option key={loc} value={loc}>{loc}</option>
-                ))}
-              </Form.Select>
+                style={{ 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '0.375rem',
+                  padding: '0.5rem'
+                }}
+              />
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
+              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>Description</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={4}
+                name="description"
                 value={editJobForm.description}
                 onChange={(e) => setEditJobForm({ ...editJobForm, description: e.target.value })}
-                placeholder="Enter job description"
-                required
+                style={{ 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '0.375rem',
+                  padding: '0.5rem'
+                }}
               />
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Status</Form.Label>
+              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>Status</Form.Label>
               <Form.Select
+                name="status"
                 value={editJobForm.status}
                 onChange={(e) => setEditJobForm({ ...editJobForm, status: e.target.value })}
-                required
+                style={{ 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '0.375rem',
+                  padding: '0.5rem'
+                }}
               >
                 <option value="OPEN">Open</option>
                 <option value="CLOSED">Closed</option>
+                <option value="DRAFT">Draft</option>
               </Form.Select>
             </Form.Group>
-
-            <Button variant="primary" type="submit" disabled={loading}>
-              {loading ? 'Updating...' : 'Update Job'}
-            </Button>
           </Form>
         </Modal.Body>
+        <Modal.Footer style={{ background: 'white', borderTop: '1px solid #e5e7eb' }}>
+          <Button 
+            onClick={() => setShowEditJobModal(false)}
+            style={{ 
+              background: 'white',
+              border: '1px solid #e5e7eb',
+              color: theme.colors.text.primary,
+              boxShadow: 'none'
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            className="btn-gradient"
+            onClick={handleEditSubmit}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+                <span className="ms-2">Updating...</span>
+              </>
+            ) : (
+              'Update Job'
+            )}
+          </Button>
+        </Modal.Footer>
       </Modal>
 
       {/* Feedback Modal */}
       <Modal show={showFeedbackModal} onHide={() => setShowFeedbackModal(false)} size="lg">
-        <Modal.Header closeButton>
+        <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)` }}>
           <Modal.Title>
             Interview Feedback for {selectedCandidate?.user.name}
           </Modal.Title>

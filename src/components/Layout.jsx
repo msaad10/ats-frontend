@@ -3,11 +3,11 @@ import { Container, Navbar, Nav, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { theme } from '../styles/theme';
 
 const Layout = ({ children }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  console.log(user, "user");
 
   const handleLogout = () => {
     logout();
@@ -28,13 +28,17 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <div className="d-flex flex-column min-vh-100">
+    <div className="d-flex flex-column min-vh-100" style={{ background: theme.colors.background.app }}>
       {/* Header */}
-      <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm">
+      <Navbar 
+        expand="lg" 
+        className="shadow-sm"
+        style={{ background: theme.colors.primary.gradient }}
+      >
         <Container>
           <Navbar.Brand 
             href={getDashboardPath()} 
-            className="fw-bold"
+            className="fw-bold text-white"
             style={{ cursor: 'pointer' }}
           >
             ATS Portal
@@ -46,7 +50,7 @@ const Layout = ({ children }) => {
                 <>
                   <Nav.Item className="text-light me-3">
                     <FaUser className="me-2" />
-                    {user.userName}
+                    {user.name}
                   </Nav.Item>
                   <Button
                     variant="outline-light"
@@ -71,7 +75,10 @@ const Layout = ({ children }) => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-dark text-light py-3 mt-auto">
+      <footer className="py-3 mt-auto" style={{ 
+        background: theme.colors.primary.gradient,
+        color: theme.colors.text.light 
+      }}>
         <Container>
           <div className="text-center">
             <p className="mb-0">

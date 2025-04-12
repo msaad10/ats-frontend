@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Button, Modal, Form, Alert, Spinner, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Container, Card, Button, Modal, Form, Alert, Spinner, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { saveAs } from 'file-saver';
 import interviewService from '../services/interviewService';
 import candidateService from '../services/candidateService';
 import { FaDownload, FaCommentDots } from 'react-icons/fa';
+import StyledTable from '../components/common/StyledTable';
+import { theme } from '../styles/theme';
 
 const InterviewerDashboard = () => {
   const [interviews, setInterviews] = useState([]);
@@ -75,6 +77,21 @@ const InterviewerDashboard = () => {
     setShowFeedbackModal(true);
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user starts typing
+    if (formErrors[name]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
   const handleFeedbackSubmit = async (e) => {
     e.preventDefault();
     
@@ -141,76 +158,114 @@ const InterviewerDashboard = () => {
         </Alert>
       )}
 
-      <Table striped hover responsive>
-        <thead>
-          <tr>
-            <th>Job Title</th>
-            <th>Interview Type</th>
-            <th>Date & Time</th>
-            <th>Candidate</th>
-            <th>Result</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {interviews.map(interview => (
-            <tr key={interview.id}>
-              <td>{interview.jobTitle}</td>
-              <td>{interview.interviewType}</td>
-              <td>{new Date(interview.dateTime).toLocaleString()}</td>
-              <td>{interview.candidateName}</td>
-              <td>{getStageBadge(interview.result)}</td>
-              <td>
-                <div className="d-flex gap-2">
-                  <OverlayTrigger
-                    placement="top"
-                    overlay={<Tooltip>Download Resume</Tooltip>}
-                  >
-                    <Button
-                      variant="outline-primary"
-                      size="sm"
-                      onClick={() => handleDownloadResume(interview.candidateId)}
-                    >
-                      <FaDownload />
-                    </Button>
-                  </OverlayTrigger>
-
-                  <OverlayTrigger
-                    placement="top"
-                    overlay={<Tooltip>View Feedback</Tooltip>}
-                  >
-                    <Button
-                      variant="outline-info"
-                      size="sm"
-                      onClick={() => handleGiveFeedback(interview)}
-                    >
-                      <FaCommentDots />
-                    </Button>
-                  </OverlayTrigger>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+      <Card>
+        <Card.Header className="bg-white">
+          <h5 className="mb-1" style={{ color: theme.colors.text.primary }}>My Interviews</h5>
+        </Card.Header>
+        <Card.Body>
+          <StyledTable>
+            <thead>
+              <tr>
+                <th>Candidate Name</th>
+                <th>Job Title</th>
+                <th>Interview Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {interviews.map((interview) => (
+                <tr key={interview.id}>
+                  <td style={{ color: theme.colors.text.primary }}>{interview.candidateName}</td>
+                  <td style={{ color: theme.colors.text.secondary }}>{interview.jobTitle}</td>
+                  <td style={{ color: theme.colors.text.secondary }}>
+                    {new Date(interview.dateTime).toLocaleString()}
+                  </td>
+                  <td>
+                    <Badge style={{ 
+                      background: interview.result === 'PASS' ? 'linear-gradient(to right, #28a745, #20c997)' :
+                                interview.result === 'FAIL' ? 'linear-gradient(to right, #dc3545, #c82333)' :
+                                theme.colors.primary.gradientButton
+                    }}>
+                      {interview.result || 'PENDING'}
+                    </Badge>
+                  </td>
+                  <td>
+                    <div className="d-flex gap-2">
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip>Download Resume</Tooltip>}
+                      >
+                        <Button
+                          className="btn-gradient"
+                          size="sm"
+                          onClick={() => handleDownloadResume(interview.candidateId)}
+                          style={{
+                            border: 'none',
+                            padding: '0.5rem',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                        >
+                          <FaDownload />
+                        </Button>
+                      </OverlayTrigger>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip>Give Feedback</Tooltip>}
+                      >
+                        <Button
+                          className="btn-gradient"
+                          size="sm"
+                          onClick={() => handleGiveFeedback(interview)}
+                          style={{
+                            border: 'none',
+                            padding: '0.5rem',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                        >
+                          <FaCommentDots />
+                        </Button>
+                      </OverlayTrigger>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </StyledTable>
+        </Card.Body>
+      </Card>
 
       {/* Feedback Modal */}
       <Modal show={showFeedbackModal} onHide={() => setShowFeedbackModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Give Interview Feedback</Modal.Title>
+        <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)`, borderBottom: '1px solid #e5e7eb' }}>
+          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+            Provide Interview Feedback
+          </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={handleFeedbackSubmit}>
+        <Modal.Body style={{ background: 'white' }}>
+          <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Result</Form.Label>
+              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>
+                Interview Result
+              </Form.Label>
               <Form.Select
+                name="result"
                 value={feedbackForm.result}
-                onChange={(e) => setFeedbackForm({ ...feedbackForm, result: e.target.value })}
+                onChange={handleInputChange}
                 isInvalid={!!formErrors.result}
+                style={{ 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '0.375rem',
+                  padding: '0.5rem'
+                }}
               >
-                <option value="">Select Result</option>
-                <option value="PASSED">Pass</option>
-                <option value="FAILED">Fail</option>
+                <option value="">Select result...</option>
+                <option value="PASS">Pass</option>
+                <option value="FAIL">Fail</option>
               </Form.Select>
               <Form.Control.Feedback type="invalid">
                 {formErrors.result}
@@ -218,25 +273,67 @@ const InterviewerDashboard = () => {
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label>Feedback</Form.Label>
+              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>
+                Feedback
+              </Form.Label>
               <Form.Control
                 as="textarea"
                 rows={4}
+                name="feedback"
                 value={feedbackForm.feedback}
-                onChange={(e) => setFeedbackForm({ ...feedbackForm, feedback: e.target.value })}
+                onChange={handleInputChange}
                 isInvalid={!!formErrors.feedback}
-                placeholder="Enter your feedback"
+                placeholder="Provide detailed feedback about the interview..."
+                style={{ 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '0.375rem',
+                  padding: '0.5rem'
+                }}
               />
               <Form.Control.Feedback type="invalid">
                 {formErrors.feedback}
               </Form.Control.Feedback>
             </Form.Group>
-
-            <Button variant="primary" type="submit" disabled={submitting}>
-              {submitting ? 'Submitting...' : 'Submit Feedback'}
-            </Button>
           </Form>
         </Modal.Body>
+        <Modal.Footer style={{ background: 'white', borderTop: '1px solid #e5e7eb' }}>
+          <Button 
+            onClick={() => setShowFeedbackModal(false)}
+            style={{ 
+              background: 'white',
+              border: '1px solid #e5e7eb',
+              color: theme.colors.text.primary,
+              boxShadow: 'none'
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            className="btn-gradient"
+            onClick={handleFeedbackSubmit}
+            disabled={submitting}
+            style={{
+              border: 'none',
+              padding: '0.5rem 1rem',
+              fontWeight: 500
+            }}
+          >
+            {submitting ? (
+              <>
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+                <span className="ms-2">Submitting...</span>
+              </>
+            ) : (
+              'Submit Feedback'
+            )}
+          </Button>
+        </Modal.Footer>
       </Modal>
     </Container>
   );

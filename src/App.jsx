@@ -21,6 +21,7 @@ import CandidateDashboard from './pages/CandidateDashboard';
 import RecruiterJobDetail from './pages/RecruiterJobDetail';
 import InterviewerDashboard from './pages/InterviewerDashboard';
 import Layout from './components/Layout';
+import './styles/global.css';
 
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -104,7 +105,7 @@ function App() {
               }
             />
             <Route
-              path="/recruiter/jobs/:id"
+              path="/recruiter/jobs/:jobId"
               element={
                 <PrivateRoute allowedRoles={['RECRUITER']}>
                   <RecruiterJobDetail />

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Modal, Alert, Spinner, Badge, Table } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Modal, Alert, Spinner, Badge, Table, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import jobService from '../services/jobService';
 import candidateService from '../services/candidateService';
+import { theme } from '../styles/theme';
+import StyledTable from '../components/common/StyledTable';
 
 const Jobs = () => {
   const navigate = useNavigate();
@@ -15,8 +17,14 @@ const Jobs = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [applying, setApplying] = useState(false);
+  const [selectedDepartment, setSelectedDepartment] = useState('');
 
   useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -35,7 +43,15 @@ const Jobs = () => {
     };
 
     fetchData();
-  }, [user]);
+  }, [user, navigate]);
+
+  // Get unique departments from jobs
+  const departments = [...new Set(jobs.map(job => job.department))];
+
+  // Filter jobs based on selected department
+  const filteredJobs = selectedDepartment
+    ? jobs.filter(job => job.department === selectedDepartment)
+    : jobs;
 
   const handleApplyJob = (job) => {
     setSelectedJob(job);
@@ -75,11 +91,11 @@ const Jobs = () => {
 
   if (loading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
         <Spinner animation="border" role="status">
           <span className="visually-hidden">Loading...</span>
         </Spinner>
-      </div>
+      </Container>
     );
   }
 
@@ -91,8 +107,13 @@ const Jobs = () => {
             <h2>All Jobs</h2>
             {user.role === 'RECRUITER' && (
               <Button 
-                variant="primary"
+                className="btn-gradient"
                 onClick={() => navigate('/recruiter/jobs/create')}
+                style={{
+                  border: 'none',
+                  padding: '0.5rem 1rem',
+                  fontWeight: 500
+                }}
               >
                 Create New Job
               </Button>
@@ -104,8 +125,28 @@ const Jobs = () => {
       {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
 
       <Card>
+        <Card.Header className="bg-white">
+          <div className="d-flex justify-content-between align-items-center">
+            <h5 className="mb-0" style={{ color: theme.colors.text.primary }}>Available Jobs</h5>
+            <Form.Select
+              value={selectedDepartment}
+              onChange={(e) => setSelectedDepartment(e.target.value)}
+              style={{ 
+                width: '200px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '0.375rem',
+                padding: '0.5rem'
+              }}
+            >
+              <option value="">All Departments</option>
+              {departments.map((dept) => (
+                <option key={dept} value={dept}>{dept}</option>
+              ))}
+            </Form.Select>
+          </div>
+        </Card.Header>
         <Card.Body>
-          <Table responsive hover>
+          <StyledTable>
             <thead>
               <tr>
                 <th>Title</th>
@@ -116,23 +157,30 @@ const Jobs = () => {
               </tr>
             </thead>
             <tbody>
-              {jobs.map(job => (
+              {filteredJobs.map(job => (
                 <tr key={job.id}>
-                  <td>{job.title}</td>
-                  <td>{job.department}</td>
-                  <td>{job.location}</td>
+                  <td style={{ color: theme.colors.text.primary }}>{job.title}</td>
+                  <td style={{ color: theme.colors.text.secondary }}>{job.department}</td>
+                  <td style={{ color: theme.colors.text.secondary }}>{job.location}</td>
                   <td>
-                    <Badge bg={job.status === 'OPEN' ? 'success' : 'secondary'}>
+                    <Badge style={{ 
+                      background: job.status === 'OPEN' ? theme.colors.primary.gradientButton : 'linear-gradient(to right, #6c757d, #495057)'
+                    }}>
                       {job.status}
                     </Badge>
                   </td>
                   {user.role === 'CANDIDATE' && (
                     <td>
                       <Button
-                        variant="primary"
+                        className="btn-gradient"
                         size="sm"
                         onClick={() => handleApplyJob(job)}
                         disabled={appliedJobs?.some(applied => applied.jobId === job.id)}
+                        style={{
+                          border: 'none',
+                          padding: '0.5rem 1rem',
+                          fontWeight: 500
+                        }}
                       >
                         {appliedJobs?.some(applied => applied.jobId === job.id) ? 'Applied' : 'Apply'}
                       </Button>
@@ -141,26 +189,41 @@ const Jobs = () => {
                 </tr>
               ))}
             </tbody>
-          </Table>
+          </StyledTable>
         </Card.Body>
       </Card>
 
       {/* Application Confirmation Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Application</Modal.Title>
+        <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)`, borderBottom: '1px solid #e5e7eb' }}>
+          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+            Confirm Application
+          </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          Are you sure you want to apply for {selectedJob?.title}?
+        <Modal.Body style={{ background: 'white', color: theme.colors.text.primary }}>
+          <p className="mb-0">Are you sure you want to apply for <strong>{selectedJob?.title}</strong>?</p>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+        <Modal.Footer style={{ background: 'white', borderTop: '1px solid #e5e7eb' }}>
+          <Button 
+            onClick={() => setShowModal(false)}
+            style={{ 
+              background: 'white',
+              border: '1px solid #e5e7eb',
+              color: theme.colors.text.primary,
+              boxShadow: 'none'
+            }}
+          >
             Cancel
           </Button>
           <Button 
-            variant="primary" 
+            className="btn-gradient"
             onClick={handleConfirmApply}
             disabled={applying}
+            style={{
+              border: 'none',
+              padding: '0.5rem 1rem',
+              fontWeight: 500
+            }}
           >
             {applying ? (
               <>

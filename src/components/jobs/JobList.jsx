@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Table, Button, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { theme } from '../../styles/theme';
 
 const JobList = () => {
   // Mock data for testing
@@ -29,12 +30,15 @@ const JobList = () => {
   ]);
 
   const getStatusBadge = (status) => {
-    const variants = {
-      DRAFT: 'secondary',
-      PUBLISHED: 'success',
-      CLOSED: 'danger',
-    };
-    return <Badge bg={variants[status]}>{status}</Badge>;
+    return (
+      <Badge style={{ 
+        background: status === 'PUBLISHED' ? theme.colors.primary.gradientButton :
+                  status === 'DRAFT' ? 'linear-gradient(to right, #6c757d, #495057)' :
+                  'linear-gradient(to right, #dc3545, #c82333)'
+      }}>
+        {status}
+      </Badge>
+    );
   };
 
   return (
@@ -56,23 +60,34 @@ const JobList = () => {
             <td>{job.location}</td>
             <td>{getStatusBadge(job.status)}</td>
             <td>
-              <Button
-                as={Link}
-                to={`/jobs/${job.id}`}
-                variant="outline-primary"
-                size="sm"
-                className="me-2"
-              >
-                View
-              </Button>
-              <Button
-                as={Link}
-                to={`/jobs/${job.id}/edit`}
-                variant="outline-secondary"
-                size="sm"
-              >
-                Edit
-              </Button>
+              <div className="d-flex gap-2">
+                <Button
+                  as={Link}
+                  to={`/jobs/${job.id}`}
+                  className="btn-gradient"
+                  size="sm"
+                  style={{
+                    border: 'none',
+                    padding: '0.5rem 1rem',
+                    fontWeight: 500
+                  }}
+                >
+                  View
+                </Button>
+                <Button
+                  as={Link}
+                  to={`/jobs/${job.id}/edit`}
+                  className="btn-gradient"
+                  size="sm"
+                  style={{
+                    border: 'none',
+                    padding: '0.5rem 1rem',
+                    fontWeight: 500
+                  }}
+                >
+                  Edit
+                </Button>
+              </div>
             </td>
           </tr>
         ))}
