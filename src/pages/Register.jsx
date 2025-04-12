@@ -10,7 +10,7 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'CANDIDATE'
+    role: 'RECRUITER'
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,11 +35,6 @@ const Register = () => {
     // Name validation
     if (formData.firstName.length < 2) {
       setError('First name must be at least 2 characters long');
-      return false;
-    }
-
-    if (formData.lastName.length < 2) {
-      setError('Last name must be at least 2 characters long');
       return false;
     }
 
@@ -95,7 +90,7 @@ const Register = () => {
     <div className="auth-container">
       <Card className="auth-card">
         <Card.Body>
-          <h2 className="text-center mb-4">Create Account</h2>
+          <h2 className="text-center mb-4">Recruiter/Interviewer Registration</h2>
           {error && <Alert variant="danger">{error}</Alert>}
           <Form onSubmit={handleSubmit}>
             <div className="row">
@@ -147,7 +142,6 @@ const Register = () => {
                 onChange={handleChange}
                 required
               >
-                <option value="CANDIDATE">Candidate</option>
                 <option value="RECRUITER">Recruiter</option>
                 <option value="INTERVIEWER">Interviewer</option>
               </Form.Select>
@@ -194,6 +188,12 @@ const Register = () => {
           </Form>
           <div className="text-center mt-3">
             <p className="mb-0">
+              Are you a candidate?{' '}
+              <Link to="/register/candidate" className="text-primary">
+                Register as Candidate
+              </Link>
+            </p>
+            <p className="mb-0 mt-2">
               Already have an account?{' '}
               <Link to="/login" className="text-primary">
                 Login

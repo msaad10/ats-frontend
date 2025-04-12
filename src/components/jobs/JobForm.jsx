@@ -4,8 +4,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
-import { jobService } from '../../services/jobService';
 import { useAuth } from '../../context/AuthContext';
+import jobService from '../../services/jobService';
 
 const schema = yup.object().shape({
   title: yup.string().required('Title is required'),
@@ -46,6 +46,7 @@ const JobForm = () => {
         setValue(key, job[key]);
       });
     } catch (err) {
+      console.log(err, "err")
       setError('Failed to load job');
     }
   };

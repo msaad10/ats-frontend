@@ -1,8 +1,10 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/api';
+import authService from '../services/authService';
 
-const AuthContext = createContext(null);
+const AuthContext = createContext();
+
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -12,55 +14,70 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      // Decode the token to get user info
       try {
-        const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+        const decodedToken = parseJwt(token);
         setUser({
-          token,
-          id: tokenPayload.id,
-          email: tokenPayload.email,
-          role: tokenPayload.role,
-          name: tokenPayload.name
+          id: decodedToken.userId,
+          firstName: decodedToken.firstName,
+          lastName: decodedToken.lastName,
+          email: decodedToken.email,
+          role: decodedToken.role
         });
       } catch (error) {
-        console.error('Error decoding token:', error);
+        console.error('Error parsing token:', error);
         localStorage.removeItem('token');
       }
     }
     setLoading(false);
   }, []);
 
+  const parseJwt = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      throw new Error('Invalid token format');
+    }
+  };
+
   const login = async (email, password) => {
     try {
-      const response = await authService.login({ email, password });
+      const response = await authService.login(email, password);
       const { token } = response.data;
       localStorage.setItem('token', token);
       
-      // Decode token to get user info
-      const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+      const decodedToken = parseJwt(token);
       const userData = {
-        token,
-        id: tokenPayload.id,
-        email: tokenPayload.email,
-        role: tokenPayload.role,
-        name: tokenPayload.name
+        id: decodedToken.userId,
+        // firstName: decodedToken.firstName,
+        // lastName: decodedToken.lastName,
+        // email: decodedToken.email,
+        role: decodedToken.role
       };
       setUser(userData);
 
+      console.log(decodedToken, "decodedToken")
       // Redirect based on role
-      switch (userData.role) {
+      switch (decodedToken.role) {
         case 'ADMIN':
           navigate('/admin');
           break;
         case 'RECRUITER':
+          navigate('/recruiter/dashboard');
+          break;
         case 'INTERVIEWER':
-          navigate('/dashboard');
+          navigate('/interviewer');
           break;
         case 'CANDIDATE':
-          navigate('/candidate-dashboard');
+          navigate('/candidate/dashboard');
           break;
         default:
-          navigate('/dashboard');
+          navigate('/');
       }
     } catch (error) {
       throw error;
@@ -73,39 +90,39 @@ export const AuthProvider = ({ children }) => {
       const { token } = response.data;
       localStorage.setItem('token', token);
       
-      // Decode token to get user info
-      const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-      const newUser = {
-        token,
-        id: tokenPayload.id,
-        email: tokenPayload.email,
-        role: tokenPayload.role,
-        name: tokenPayload.name
+      const decodedToken = parseJwt(token);
+      const newUserData = {
+        id: decodedToken.userId,
+        firstName: decodedToken.firstName,
+        lastName: decodedToken.lastName,
+        email: decodedToken.email,
+        role: decodedToken.role
       };
-      setUser(newUser);
+      setUser(newUserData);
 
       // Redirect based on role
-      switch (newUser.role) {
+      switch (decodedToken.role) {
         case 'ADMIN':
           navigate('/admin');
           break;
         case 'RECRUITER':
+          navigate('/recruiter');
+          break;
         case 'INTERVIEWER':
-          navigate('/dashboard');
+          navigate('/interviewer');
           break;
         case 'CANDIDATE':
-          navigate('/candidate-dashboard');
+          navigate('/candidate');
           break;
         default:
-          navigate('/dashboard');
+          navigate('/');
       }
     } catch (error) {
       throw error;
     }
   };
 
-  const logout = async () => {
-    await authService.logout();
+  const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
     navigate('/login');
@@ -116,16 +133,12 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     register,
-    logout,
+    logout
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 }; 

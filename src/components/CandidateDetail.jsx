@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, Container, Row, Col, Badge } from 'react-bootstrap';
-import { useAuth } from '../contexts/AuthContext';
-import { getCandidateById } from '../services/candidateService';
-import { getCandidateFeedback } from '../services/feedbackService';
 import FeedbackForm from './FeedbackForm';
 import FeedbackList from './FeedbackList';
+import { useAuth } from '../context/AuthContext';
+import { getCandidateFeedback } from '../services/feedbackService';
 
 const CandidateDetail = () => {
   const { id } = useParams();
