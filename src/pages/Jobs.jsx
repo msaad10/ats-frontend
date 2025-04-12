@@ -19,6 +19,7 @@ const Jobs = () => {
   const [applying, setApplying] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortOrder, setSortOrder] = useState('newest');
 
   useEffect(() => {
     if (!user) {
@@ -49,13 +50,19 @@ const Jobs = () => {
   // Get unique departments from jobs
   const departments = [...new Set(jobs.map(job => job.department))];
 
-  // Filter jobs based on selected department and search term
-  const filteredJobs = jobs.filter(job => {
-    const matchesDepartment = !selectedDepartment || job.department === selectedDepartment;
-    const matchesSearch = !searchTerm || 
-      job.title.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesDepartment && matchesSearch;
-  });
+  // Filter and sort jobs based on selected department, search term, and sort order
+  const filteredJobs = jobs
+    .filter(job => {
+      const matchesDepartment = !selectedDepartment || job.department === selectedDepartment;
+      const matchesSearch = !searchTerm || 
+        job.title.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesDepartment && matchesSearch;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
 
   const handleApplyJob = (job) => {
     setSelectedJob(job);
@@ -140,7 +147,7 @@ const Jobs = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{ 
                   width: '250px',
-                  border: '1px solid rgb(14, 59, 151)',
+                  border: '1px solid rgb(30, 40, 59)',
                   borderRadius: '0.375rem',
                   padding: '0.5rem',
                   background: 'white'
@@ -151,7 +158,7 @@ const Jobs = () => {
                 onChange={(e) => setSelectedDepartment(e.target.value)}
                 style={{ 
                   width: '200px',
-                  border: '1px solid rgb(14, 59, 151)',
+                  border: '1px solid rgb(30, 40, 59)',
                   borderRadius: '0.375rem',
                   padding: '0.5rem'
                 }}
@@ -160,6 +167,19 @@ const Jobs = () => {
                 {departments.map((dept) => (
                   <option key={dept} value={dept}>{dept}</option>
                 ))}
+              </Form.Select>
+              <Form.Select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                style={{ 
+                  width: '200px',
+                  border: '1px solid rgb(30, 40, 59)',
+                  borderRadius: '0.375rem',
+                  padding: '0.5rem'
+                }}
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
               </Form.Select>
             </div>
           </div>
