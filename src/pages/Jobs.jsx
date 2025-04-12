@@ -18,6 +18,7 @@ const Jobs = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [applying, setApplying] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (!user) {
@@ -48,10 +49,13 @@ const Jobs = () => {
   // Get unique departments from jobs
   const departments = [...new Set(jobs.map(job => job.department))];
 
-  // Filter jobs based on selected department
-  const filteredJobs = selectedDepartment
-    ? jobs.filter(job => job.department === selectedDepartment)
-    : jobs;
+  // Filter jobs based on selected department and search term
+  const filteredJobs = jobs.filter(job => {
+    const matchesDepartment = !selectedDepartment || job.department === selectedDepartment;
+    const matchesSearch = !searchTerm || 
+      job.title.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesDepartment && matchesSearch;
+  });
 
   const handleApplyJob = (job) => {
     setSelectedJob(job);
@@ -128,21 +132,36 @@ const Jobs = () => {
         <Card.Header className="bg-white">
           <div className="d-flex justify-content-between align-items-center">
             <h5 className="mb-0" style={{ color: theme.colors.text.primary }}>Available Jobs</h5>
-            <Form.Select
-              value={selectedDepartment}
-              onChange={(e) => setSelectedDepartment(e.target.value)}
-              style={{ 
-                width: '200px',
-                border: '1px solid #e5e7eb',
-                borderRadius: '0.375rem',
-                padding: '0.5rem'
-              }}
-            >
-              <option value="">All Departments</option>
-              {departments.map((dept) => (
-                <option key={dept} value={dept}>{dept}</option>
-              ))}
-            </Form.Select>
+            <div className="d-flex gap-3">
+              <Form.Control
+                type="text"
+                placeholder="Search by job title..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ 
+                  width: '250px',
+                  border: '1px solid rgb(14, 59, 151)',
+                  borderRadius: '0.375rem',
+                  padding: '0.5rem',
+                  background: 'white'
+                }}
+              />
+              <Form.Select
+                value={selectedDepartment}
+                onChange={(e) => setSelectedDepartment(e.target.value)}
+                style={{ 
+                  width: '200px',
+                  border: '1px solid rgb(14, 59, 151)',
+                  borderRadius: '0.375rem',
+                  padding: '0.5rem'
+                }}
+              >
+                <option value="">All Departments</option>
+                {departments.map((dept) => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </Form.Select>
+            </div>
           </div>
         </Card.Header>
         <Card.Body>
@@ -152,6 +171,7 @@ const Jobs = () => {
                 <th>Title</th>
                 <th>Department</th>
                 <th>Location</th>
+                <th>Date Posted</th>
                 <th>Status</th>
                 {user.role === 'CANDIDATE' && <th>Action</th>}
               </tr>
@@ -162,6 +182,9 @@ const Jobs = () => {
                   <td style={{ color: theme.colors.text.primary }}>{job.title}</td>
                   <td style={{ color: theme.colors.text.secondary }}>{job.department}</td>
                   <td style={{ color: theme.colors.text.secondary }}>{job.location}</td>
+                  <td style={{ color: theme.colors.text.secondary }}>
+                    {new Date(job.createdAt).toLocaleDateString()}
+                  </td>
                   <td>
                     <Badge style={{ 
                       background: job.status === 'OPEN' ? theme.colors.primary.gradientButton : 'linear-gradient(to right, #6c757d, #495057)'
