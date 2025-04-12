@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Form, Button, Card, Alert } from 'react-bootstrap';
+import { Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { theme } from '../styles/theme';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -10,7 +11,8 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'RECRUITER'
+    role: 'RECRUITER',
+    skills: []
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -80,6 +82,7 @@ const Register = () => {
       const { confirmPassword, ...registrationData } = formData;
       await register(registrationData);
     } catch (err) {
+      console.log(err, "err");
       setError(err.response?.data?.message || 'Failed to create an account');
     } finally {
       setLoading(false);
@@ -92,7 +95,7 @@ const Register = () => {
         <Card.Body>
           <h2 className="text-center mb-4">Recruiter/Interviewer Registration</h2>
           {error && <Alert variant="danger">{error}</Alert>}
-          <Form onSubmit={handleSubmit}>
+          <Form onSubmit={handleSubmit} className="w-100">
             <div className="row">
               <div className="col-md-6">
                 <Form.Group className="mb-3">
@@ -178,28 +181,38 @@ const Register = () => {
             </Form.Group>
 
             <Button
-              variant="primary"
               type="submit"
-              className="w-100"
+              className="w-100 mb-3"
+              style={{
+                background: theme.colors.primary.gradientButton,
+                border: 'none',
+                padding: '0.75rem',
+                fontSize: '1rem',
+                fontWeight: 500
+              }}
               disabled={loading}
             >
-              {loading ? 'Creating Account...' : 'Register'}
+              {loading ? (
+                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+              ) : (
+                'Register'
+              )}
             </Button>
+            <div className="text-center">
+              <p className="mb-2" style={{ color: theme.colors.text.secondary }}>
+                Already have an account?{' '}
+                <Link to="/login" style={{ color: theme.colors.primary.main }}>
+                  Sign in here
+                </Link>
+              </p>
+              <p className="mb-0" style={{ color: theme.colors.text.secondary }}>
+                Want to apply for jobs?{' '}
+                <Link to="/register/candidate" style={{ color: theme.colors.primary.main }}>
+                  Register as a candidate
+                </Link>
+              </p>
+            </div>
           </Form>
-          <div className="text-center mt-3">
-            <p className="mb-0">
-              Are you a candidate?{' '}
-              <Link to="/register/candidate" className="text-primary">
-                Register as Candidate
-              </Link>
-            </p>
-            <p className="mb-0 mt-2">
-              Already have an account?{' '}
-              <Link to="/login" className="text-primary">
-                Login
-              </Link>
-            </p>
-          </div>
         </Card.Body>
       </Card>
     </div>

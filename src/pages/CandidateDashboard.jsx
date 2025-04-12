@@ -11,6 +11,7 @@ const CandidateDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [jobs, setJobs] = useState([]);
+  const [recentJobs, setRecentJobs] = useState([]);
   const [appliedJobs, setAppliedJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,13 +27,16 @@ const CandidateDashboard = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [jobsResponse, appliedJobsResponse] = await Promise.all([
+        const [jobsResponse, recentJobsResponse, appliedJobsResponse] = await Promise.all([
           jobService.getAllJobs(),
+          jobService.getRecentJobs(),
           candidateService.getAppliedJobs(user.id)
         ]);
         setJobs(jobsResponse);
+        setRecentJobs(recentJobsResponse);
         setAppliedJobs(appliedJobsResponse);
       } catch (err) {
+        console.error('Error fetching data:', err);
         setError('Failed to fetch data');
       } finally {
         setLoading(false);
@@ -182,7 +186,7 @@ const CandidateDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {jobs.slice(0, 5).map(job => (
+                  {recentJobs.map(job => (
                     <tr key={job.id}>
                       <td style={{ color: theme.colors.text.primary }}>{job.title}</td>
                       <td style={{ color: theme.colors.text.secondary }}>{job.department}</td>
@@ -260,7 +264,7 @@ const CandidateDashboard = () => {
       {/* Resume Upload Modal */}
       <Modal show={showResumeModal} onHide={() => setShowResumeModal(false)}>
         <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)`, borderBottom: '1px solid #e5e7eb' }}>
-          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+          <Modal.Title style={{ color: theme.colors.text.light, fontSize: '1.25rem', fontWeight: 500 }}>
             Upload Resume
           </Modal.Title>
         </Modal.Header>
@@ -330,7 +334,7 @@ const CandidateDashboard = () => {
       {/* Application Confirmation Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)`, borderBottom: '1px solid #e5e7eb' }}>
-          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+          <Modal.Title style={{ color: theme.colors.text.light, fontSize: '1.25rem', fontWeight: 500 }}>
             Confirm Application
           </Modal.Title>
         </Modal.Header>

@@ -92,6 +92,21 @@ const InterviewerDashboard = () => {
     }
   };
 
+  const handleFeedbackInputChange = (e) => {
+    const { name, value } = e.target;
+    setFeedbackForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user starts typing
+    if (formErrors[name]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
   const handleFeedbackSubmit = async (e) => {
     e.preventDefault();
     
@@ -183,8 +198,8 @@ const InterviewerDashboard = () => {
                   </td>
                   <td>
                     <Badge style={{ 
-                      background: interview.result === 'PASS' ? 'linear-gradient(to right, #28a745, #20c997)' :
-                                interview.result === 'FAIL' ? 'linear-gradient(to right, #dc3545, #c82333)' :
+                      background: interview.result === 'PASSED' ? 'linear-gradient(to right, #28a745, #20c997)' :
+                                interview.result === 'FAILED' ? 'linear-gradient(to right, #dc3545, #c82333)' :
                                 theme.colors.primary.gradientButton
                     }}>
                       {interview.result || 'PENDING'}
@@ -247,93 +262,63 @@ const InterviewerDashboard = () => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ background: 'white' }}>
-          <Form>
+          <Form onSubmit={handleFeedbackSubmit}>
             <Form.Group className="mb-3">
-              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>
-                Interview Result
-              </Form.Label>
+              <Form.Label>Interview Result</Form.Label>
               <Form.Select
                 name="result"
                 value={feedbackForm.result}
-                onChange={handleInputChange}
-                isInvalid={!!formErrors.result}
+                onChange={handleFeedbackInputChange}
+                required
                 style={{ 
                   border: '1px solid #e5e7eb',
                   borderRadius: '0.375rem',
                   padding: '0.5rem'
                 }}
               >
-                <option value="">Select result...</option>
-                <option value="PASS">Pass</option>
-                <option value="FAIL">Fail</option>
+                <option value="">Select Result</option>
+                <option value="PASSED">Pass</option>
+                <option value="FAILED">Fail</option>
               </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                {formErrors.result}
-              </Form.Control.Feedback>
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>
-                Feedback
-              </Form.Label>
+              <Form.Label>Feedback</Form.Label>
               <Form.Control
                 as="textarea"
-                rows={4}
                 name="feedback"
                 value={feedbackForm.feedback}
-                onChange={handleInputChange}
-                isInvalid={!!formErrors.feedback}
-                placeholder="Provide detailed feedback about the interview..."
+                onChange={handleFeedbackInputChange}
+                rows={4}
+                required
                 style={{ 
                   border: '1px solid #e5e7eb',
                   borderRadius: '0.375rem',
                   padding: '0.5rem'
                 }}
               />
-              <Form.Control.Feedback type="invalid">
-                {formErrors.feedback}
-              </Form.Control.Feedback>
             </Form.Group>
+
+            <Button
+              type="submit"
+              className="w-100"
+              style={{
+                background: theme.colors.primary.gradientButton,
+                border: 'none',
+                padding: '0.75rem',
+                fontSize: '1rem',
+                fontWeight: 500
+              }}
+              disabled={submitting}
+            >
+              {submitting ? (
+                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+              ) : (
+                'Submit Feedback'
+              )}
+            </Button>
           </Form>
         </Modal.Body>
-        <Modal.Footer style={{ background: 'white', borderTop: '1px solid #e5e7eb' }}>
-          <Button 
-            onClick={() => setShowFeedbackModal(false)}
-            style={{ 
-              background: 'white',
-              border: '1px solid #e5e7eb',
-              color: theme.colors.text.primary,
-              boxShadow: 'none'
-            }}
-          >
-            Cancel
-          </Button>
-          <Button 
-            className="btn-gradient"
-            onClick={handleFeedbackSubmit}
-            disabled={submitting}
-            style={{
-              border: 'none',
-              padding: '0.5rem 1rem',
-              fontWeight: 500
-            }}
-          >
-            {submitting ? (
-              <>
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                />
-                <span className="ms-2">Submitting...</span>
-              </>
-            ) : (
-              'Submit Feedback'
-            )}
-          </Button>
-        </Modal.Footer>
       </Modal>
     </Container>
   );

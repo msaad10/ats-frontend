@@ -78,7 +78,6 @@ const RecruiterJobDetail = () => {
 
   const handleInterviewSubmit = async (e) => {
     e.preventDefault();
-    
     // Validate form
     const errors = {};
     if (!interviewForm.interviewerId) errors.interviewerId = 'Interviewer is required';
@@ -344,93 +343,75 @@ const RecruiterJobDetail = () => {
             Schedule Interview for {selectedCandidate?.userName}
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ background: 'white' }}>
-          <Form>
+        <Modal.Body>
+          <Form onSubmit={handleInterviewSubmit}>
             <Form.Group className="mb-3">
-              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>
-                Select Interviewer
-              </Form.Label>
+              <Form.Label>Interviewer</Form.Label>
               <Form.Select
                 name="interviewerId"
                 value={interviewForm.interviewerId}
                 onChange={handleInputChange}
-                isInvalid={!!formErrors.interviewerId}
+                required
                 style={{ 
                   border: '1px solid #e5e7eb',
                   borderRadius: '0.375rem',
                   padding: '0.5rem'
                 }}
               >
-                <option value="">Choose an interviewer...</option>
+                <option value="">Select Interviewer</option>
                 {interviewers.map(interviewer => (
                   <option key={interviewer.id} value={interviewer.id}>
-                    {interviewer.username}
+                    {interviewer.userName}
                   </option>
                 ))}
               </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                {formErrors.interviewerId}
-              </Form.Control.Feedback>
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>
-                Interview Type
-              </Form.Label>
+              <Form.Label>Interview Type</Form.Label>
               <Form.Select
                 name="interviewType"
                 value={interviewForm.interviewType}
                 onChange={handleInputChange}
-                isInvalid={!!formErrors.interviewType}
+                required
                 style={{ 
                   border: '1px solid #e5e7eb',
                   borderRadius: '0.375rem',
                   padding: '0.5rem'
                 }}
               >
+                <option value="">Select Type</option>
                 <option value="TECHNICAL">Technical</option>
                 <option value="BEHAVIORAL">Behavioral</option>
-                <option value="SYSTEM_DESIGN">System Design</option>
-                <option value="CODING">Coding</option>
                 <option value="HR">HR</option>
-                <option value="CULTURE_FIT">Culture Fit</option>
               </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                {formErrors.interviewType}
-              </Form.Control.Feedback>
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>
-                Date and Time
-              </Form.Label>
+              <Form.Label>Date and Time</Form.Label>
               <Form.Control
                 type="datetime-local"
-                name="scheduledDate"
-                value={interviewForm.scheduledDate}
+                name="dateTime"
+                value={interviewForm.dateTime}
                 onChange={handleInputChange}
-                isInvalid={!!formErrors.scheduledDate}
+                required
+                min={new Date().toISOString().slice(0, 16)}
                 style={{ 
                   border: '1px solid #e5e7eb',
                   borderRadius: '0.375rem',
                   padding: '0.5rem'
                 }}
               />
-              <Form.Control.Feedback type="invalid">
-                {formErrors.scheduledDate}
-              </Form.Control.Feedback>
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>
-                Additional Notes
-              </Form.Label>
+              <Form.Label>Additional Details</Form.Label>
               <Form.Control
                 as="textarea"
-                rows={3}
-                name="notes"
-                value={interviewForm.notes}
+                name="details"
+                value={interviewForm.details}
                 onChange={handleInputChange}
+                rows={3}
                 style={{ 
                   border: '1px solid #e5e7eb',
                   borderRadius: '0.375rem',
@@ -438,46 +419,27 @@ const RecruiterJobDetail = () => {
                 }}
               />
             </Form.Group>
+
+            <Button
+              type="submit"
+              className="w-100"
+              style={{
+                background: theme.colors.primary.gradientButton,
+                border: 'none',
+                padding: '0.75rem',
+                fontSize: '1rem',
+                fontWeight: 500
+              }}
+              disabled={scheduling}
+            >
+              {scheduling ? (
+                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+              ) : (
+                'Schedule Interview'
+              )}
+            </Button>
           </Form>
         </Modal.Body>
-        <Modal.Footer style={{ background: 'white', borderTop: '1px solid #e5e7eb' }}>
-          <Button 
-            onClick={() => setShowInterviewModal(false)}
-            style={{ 
-              background: 'white',
-              border: '1px solid #e5e7eb',
-              color: theme.colors.text.primary,
-              boxShadow: 'none'
-            }}
-          >
-            Cancel
-          </Button>
-          <Button 
-            className="btn-gradient"
-            onClick={handleInterviewSubmit}
-            disabled={scheduling}
-            style={{
-              border: 'none',
-              padding: '0.5rem 1rem',
-              fontWeight: 500
-            }}
-          >
-            {scheduling ? (
-              <>
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                />
-                <span className="ms-2">Scheduling...</span>
-              </>
-            ) : (
-              'Schedule Interview'
-            )}
-          </Button>
-        </Modal.Footer>
       </Modal>
 
       {/* Feedback Modal */}

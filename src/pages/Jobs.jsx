@@ -222,7 +222,8 @@ const Jobs = () => {
                         style={{
                           border: 'none',
                           padding: '0.5rem 1rem',
-                          fontWeight: 500
+                          fontWeight: 500,
+                          background: appliedJobs?.some(applied => applied.jobId === job.id) ? 'btn-gradient' : 'linear-gradient(to right, #28a745, #20c997)'
                         }}
                       >
                         {appliedJobs?.some(applied => applied.jobId === job.id) ? 'Applied' : 'Apply'}
@@ -239,7 +240,7 @@ const Jobs = () => {
       {/* Application Confirmation Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)`, borderBottom: '1px solid #e5e7eb' }}>
-          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+          <Modal.Title style={{ color: theme.colors.text.light, fontSize: '1.25rem', fontWeight: 500 }}>
             Confirm Application
           </Modal.Title>
         </Modal.Header>

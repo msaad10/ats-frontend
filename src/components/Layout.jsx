@@ -50,7 +50,7 @@ const Layout = ({ children }) => {
                 <>
                   <Nav.Item className="text-light me-3">
                     <FaUser className="me-2" />
-                    {user.name}
+                    {user.userName}
                   </Nav.Item>
                   <Button
                     variant="outline-light"

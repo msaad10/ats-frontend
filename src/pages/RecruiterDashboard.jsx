@@ -8,6 +8,7 @@ import candidateService from '../services/candidateService';
 import interviewService from '../services/interviewService';
 import StyledTable from '../components/common/StyledTable';
 import { theme } from '../styles/theme';
+import RichTextEditor from '../components/common/RichTextEditor';
 
 const RecruiterDashboard = () => {
   const [jobs, setJobs] = useState([]);
@@ -274,7 +275,7 @@ const RecruiterDashboard = () => {
       <Row className="mb-4">
         <Col>
           <Card>
-            <Card.Header style={{ background: `rgb(93, 74, 112)` }}>
+            <Card.Header style={{ background: `rgb(100, 96, 104)` }}>
               <div className="d-flex justify-content-between align-items-center">
                 <h5 className="mb-0" style={{ color: theme.colors.text.light }}>Active Jobs</h5>
                 <Button 
@@ -423,14 +424,18 @@ const RecruiterDashboard = () => {
 
             <Form.Group className="mb-3">
               <Form.Label>Description</Form.Label>
-              <Form.Control
+              <RichTextEditor
+                value={jobForm.description}
+                onChange={(value) => setJobForm({ ...jobForm, description: value })}
+              />
+              {/* <Form.Control
                 as="textarea"
                 rows={4}
                 value={jobForm.description}
                 onChange={(e) => setJobForm({ ...jobForm, description: e.target.value })}
                 placeholder="Enter job description"
                 required
-              />
+              /> */}
             </Form.Group>
 
             <Form.Group className="mb-3">

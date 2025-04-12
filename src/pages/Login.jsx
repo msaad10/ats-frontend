@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert, Spinner } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { theme } from '../styles/theme';
 
@@ -11,6 +11,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,7 +65,7 @@ const Login = () => {
 
             {error && <Alert variant="danger" className="mb-4">{error}</Alert>}
 
-            <Form onSubmit={handleSubmit}>
+            <Form onSubmit={handleSubmit} className="w-100">
               <Form.Group className="mb-4">
                 <Form.Control
                   type="email"
@@ -89,24 +90,46 @@ const Login = () => {
                 />
               </Form.Group>
 
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <Form.Check
+                  type="checkbox"
+                  label="Remember me"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  style={{ color: theme.colors.text.secondary }}
+                />
+                <Link to="/forgot-password" style={{ color: theme.colors.primary.main }}>
+                  Forgot Password?
+                </Link>
+              </div>
+
               <Button
                 type="submit"
-                className="w-100 mb-4 py-2"
-                style={{ 
+                className="w-100 mb-3"
+                style={{
                   background: theme.colors.primary.gradientButton,
-                  border: 'none'
+                  border: 'none',
+                  padding: '0.75rem',
+                  fontSize: '1rem',
+                  fontWeight: 500
                 }}
                 disabled={loading}
               >
                 {loading ? (
-                  <>
-                    <Spinner size="sm" className="me-2" />
-                    Signing in...
-                  </>
+                  <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
                 ) : (
-                  'CONTINUE'
+                  'Sign In'
                 )}
               </Button>
+
+              <div className="text-center">
+                <p className="mb-0" style={{ color: theme.colors.text.secondary }}>
+                  Don't have an account?{' '}
+                  <Link to="/register" style={{ color: theme.colors.primary.main }}>
+                    Register here
+                  </Link>
+                </p>
+              </div>
             </Form>
           </div>
         </div>
