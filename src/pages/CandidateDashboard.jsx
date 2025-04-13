@@ -478,8 +478,8 @@ const CandidateDashboard = () => {
 
       {/* Feedback Modal */}
       <Modal show={showFeedbackModal} onHide={() => setShowFeedbackModal(false)} size="lg">
-        <Modal.Header closeButton style={{ background: 'white', borderBottom: '1px solid #e5e7eb' }}>
-          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+        <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)`, borderBottom: '1px solid #e5e7eb' }}>
+          <Modal.Title style={{ color: theme.colors.text.light, fontSize: '1.25rem', fontWeight: 500 }}>
             Interview Feedback
           </Modal.Title>
         </Modal.Header>
@@ -567,7 +567,7 @@ const CandidateDashboard = () => {
       {/* Feedback Details Modal */}
       <Modal show={showFeedbackDetailsModal} onHide={() => setShowFeedbackDetailsModal(false)}>
         <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)`, borderBottom: '1px solid #e5e7eb' }}>
-          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+          <Modal.Title style={{ color: theme.colors.text.light, fontSize: '1.25rem', fontWeight: 500 }}>
             Interview Feedback Details
           </Modal.Title>
         </Modal.Header>

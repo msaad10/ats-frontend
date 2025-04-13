@@ -348,7 +348,7 @@ const RecruiterDashboard = () => {
       {/* Job Details Modal */}
       <Modal show={showJobDetailsModal} onHide={() => setShowJobDetailsModal(false)} size="lg">
         <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)` }}>
-          <Modal.Title>Job Details</Modal.Title>
+          <Modal.Title style={{ color: theme.colors.text.light, fontSize: '1.25rem', fontWeight: 500 }}>Job Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedJob && (
@@ -383,9 +383,9 @@ const RecruiterDashboard = () => {
       {/* Job Creation Modal */}
       <Modal show={showJobModal} onHide={() => setShowJobModal(false)} size="lg">
         <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)` }}>
-          <Modal.Title>Create New Job</Modal.Title>
+          <Modal.Title style={{ color: theme.colors.text.light, fontSize: '1.25rem', fontWeight: 500 }}>Create New Job</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body style={{ background: 'white' }}>
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
               <Form.Label>Job Title</Form.Label>
@@ -395,6 +395,11 @@ const RecruiterDashboard = () => {
                 onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })}
                 placeholder="Enter job title"
                 required
+                style={{
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  color: theme.colors.text.primary
+                }}
               />
             </Form.Group>
 
@@ -464,7 +469,7 @@ const RecruiterDashboard = () => {
       {/* Interview Scheduling Modal */}
       <Modal show={showInterviewModal} onHide={() => setShowInterviewModal(false)}>
         <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)` }}>
-          <Modal.Title>Schedule Interview</Modal.Title>
+          <Modal.Title style={{ color: theme.colors.text.light, fontSize: '1.25rem', fontWeight: 500 }}>Schedule Interview</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleInterviewSubmit}>
@@ -643,7 +648,7 @@ const RecruiterDashboard = () => {
       {/* Feedback Modal */}
       <Modal show={showFeedbackModal} onHide={() => setShowFeedbackModal(false)} size="lg">
         <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)` }}>
-          <Modal.Title>
+          <Modal.Title style={{ color: theme.colors.text.light, fontSize: '1.25rem', fontWeight: 500 }}>
             Interview Feedback for {selectedCandidate?.user.name}
           </Modal.Title>
         </Modal.Header>

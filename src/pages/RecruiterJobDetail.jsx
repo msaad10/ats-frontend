@@ -244,9 +244,9 @@ const RecruiterJobDetail = () => {
                   <div 
                     className="rounded p-3" 
                     style={{ 
-                      background: 'linear-gradient(145deg, rgba(106, 17, 203, 0.05), rgba(37, 117, 252, 0.05))',
-                      border: '1px solid rgba(106, 17, 203, 0.1)',
-                      color: theme.colors.text.secondary,
+                      background: theme.colors.text.light,
+                      border: '5px solid rgba(15, 15, 15, 0.1)',
+                      color: `rgb(106, 17, 203)`,
                       fontSize: '0.95rem',
                       lineHeight: '1.6'
                     }}
@@ -350,12 +350,12 @@ const RecruiterJobDetail = () => {
 
       {/* Interview Scheduling Modal */}
       <Modal show={showInterviewModal} onHide={() => setShowInterviewModal(false)}>
-        <Modal.Header closeButton style={{ background: 'white', borderBottom: '1px solid #e5e7eb' }}>
-          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+        <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)`, borderBottom: '1px solid #e5e7eb' }}>
+          <Modal.Title style={{ color: theme.colors.text.light, fontSize: '1.25rem', fontWeight: 500 }}>
             Schedule Interview for {selectedCandidate?.userName}
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body style={{ background: 'white' }}>
           <Form onSubmit={handleInterviewSubmit}>
             <Form.Group className="mb-3">
               <Form.Label>Interviewer</Form.Label>
@@ -411,7 +411,8 @@ const RecruiterJobDetail = () => {
                 style={{ 
                   border: '1px solid #e5e7eb',
                   borderRadius: '0.375rem',
-                  padding: '0.5rem'
+                  padding: '0.5rem',
+                  background: 'white'
                 }}
               />
             </Form.Group>
@@ -427,7 +428,8 @@ const RecruiterJobDetail = () => {
                 style={{ 
                   border: '1px solid #e5e7eb',
                   borderRadius: '0.375rem',
-                  padding: '0.5rem'
+                  padding: '0.5rem',
+                  background: 'white'
                 }}
               />
             </Form.Group>
@@ -536,7 +538,7 @@ const RecruiterJobDetail = () => {
       {/* Feedback Details Modal */}
       <Modal show={showFeedbackDetailsModal} onHide={() => setShowFeedbackDetailsModal(false)}>
         <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)`, borderBottom: '1px solid #e5e7eb' }}>
-          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+          <Modal.Title style={{ color: theme.colors.text.light, fontSize: '1.25rem', fontWeight: 500 }}>
             Interview Feedback Details
           </Modal.Title>
         </Modal.Header>
