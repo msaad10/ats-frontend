@@ -150,7 +150,7 @@ const RecruiterJobDetail = () => {
   const getStatusBadge = (status) => {
     return (
       <Badge style={{ 
-        background: status === 'OPEN' ? 'linear-gradient(to right, #28a745, #20c997)' :
+        background: status === 'OPEN' || status === 'HIRED' ? 'linear-gradient(to right, #28a745, #20c997)' :
                   status === 'REJECTED' ? 'linear-gradient(to right, #dc3545, #c82333)' :
                   status === 'INTERVIEWING' ? 'linear-gradient(to right, #6c757d, #495057)' :
                   theme.colors.primary.gradientButton
