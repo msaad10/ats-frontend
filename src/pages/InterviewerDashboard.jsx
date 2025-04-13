@@ -152,7 +152,7 @@ const InterviewerDashboard = () => {
       await interviewService.updateInterviewStatus(selectedInterview.id, submitData);
       
       // Refresh interviews list
-      const response = await interviewService.getInterviewerInterviews();
+      const response = await interviewService.getInterviewerInterviews(selectedInterview.interviewerId);
       setInterviews(response);
       
       setShowFeedbackModal(false);
@@ -442,7 +442,7 @@ const InterviewerDashboard = () => {
                             <FaStar
                               key={star}
                               size={20}
-                              color={star <= score.score ? theme.colors.primary : '#e4e5e9'}
+                              color={star <= score.score ? `rgb(106, 17, 203)` : '#e4e5e9'}
                             />
                           ))}
                           <span className="ms-2 text-muted">{score.score} / 5</span>

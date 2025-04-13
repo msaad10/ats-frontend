@@ -17,7 +17,7 @@ const StarRating = ({ label, value, onChange, required }) => {
             key={star}
             className="cursor-pointer"
             size={24}
-            color={star <= value ? theme.colors.primary : '#e4e5e9'}
+            color={star <= value ? `rgb(106, 17, 203)` : '#e4e5e9'}
             onClick={() => onChange(star)}
             style={{ cursor: 'pointer' }}
           />

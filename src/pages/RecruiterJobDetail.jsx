@@ -149,9 +149,9 @@ const RecruiterJobDetail = () => {
   const getStatusBadge = (status) => {
     return (
       <Badge style={{ 
-        background: status === 'PENDING' ? 'linear-gradient(to right, #0088cc, #00a3cc)' :
-                  status === 'ACCEPTED' ? 'linear-gradient(to right, #28a745, #20c997)' :
+        background: status === 'OPEN' ? 'linear-gradient(to right, #28a745, #20c997)' :
                   status === 'REJECTED' ? 'linear-gradient(to right, #dc3545, #c82333)' :
+                  status === 'INTERVIEWING' ? 'linear-gradient(to right, #6c757d, #495057)' :
                   theme.colors.primary.gradientButton
       }}>
         {status}
@@ -308,19 +308,22 @@ const RecruiterJobDetail = () => {
                             </Button>
                           </OverlayTrigger>
 
-                          
+                              {candidate.currentStage != 'HIRED' && candidate.currentStage != 'REJECTED' && (
                             <OverlayTrigger
-                              placement="top"
-                              overlay={<Tooltip>Schedule Interview</Tooltip>}
+                            placement="top"
+                            overlay={<Tooltip>Schedule Interview</Tooltip>}
+                          >
+                            <Button
+                              className="btn-gradient"
+                              size="sm"
+                              onClick={() => handleScheduleInterview(candidate)}
                             >
-                              <Button
-                                className="btn-gradient"
-                                size="sm"
-                                onClick={() => handleScheduleInterview(candidate)}
-                              >
-                                <FaCalendarAlt />
-                              </Button>
-                            </OverlayTrigger>
+                              <FaCalendarAlt />
+                            </Button>
+                          </OverlayTrigger>
+                              )}
+
+
 
                             <OverlayTrigger
                                 placement="top"
@@ -569,7 +572,7 @@ const RecruiterJobDetail = () => {
                             <FaStar
                               key={star}
                               size={20}
-                              color={star <= score.score ? theme.colors.primary : '#e4e5e9'}
+                              color={star <= score.score ? `rgb(106, 17, 203)` : '#e4e5e9'}
                             />
                           ))}
                           <span className="ms-2 text-muted">{score.score} / 5</span>

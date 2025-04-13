@@ -207,7 +207,8 @@ const Jobs = () => {
                   </td>
                   <td>
                     <Badge style={{ 
-                      background: job.status === 'OPEN' ? theme.colors.primary.gradientButton : 'linear-gradient(to right, #6c757d, #495057)'
+                      background: job.status === 'OPEN' ? 'linear-gradient(to right, #28a745, #20c997)' :
+                                'linear-gradient(to right, #dc3545, #c82333)'
                     }}>
                       {job.status}
                     </Badge>

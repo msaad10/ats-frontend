@@ -102,6 +102,8 @@ const CandidateDashboard = () => {
 
       setJobs(jobsResponse);
       setAppliedJobs(appliedJobsResponse);
+
+      console.lo(appliedJobsResponse)
       
       
       setSelectedJob(null);
@@ -119,7 +121,7 @@ const CandidateDashboard = () => {
     try {
       setLoadingFeedback(true);
       setFeedbackError('');
-      const response = await candidateService.getCandidateInterviews(job.id);
+      const response = await candidateService.getCandidateInterviews(user.id);
       setCandidateInterviews(response);
       setShowFeedbackModal(true);
     } catch (err) {
@@ -147,8 +149,8 @@ const CandidateDashboard = () => {
 
   return (
     <Container fluid className="py-4">
-      {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
-      {success && <Alert variant="success" onClose={() => setSuccess(null)} dismissible>{success}</Alert>}
+      {error && <Alert variant="danger" style={{backgroundColor:'#f8d7da', color:'#721c24'}} onClose={() => setError(null)} dismissible>{error}</Alert>}
+      {success && <Alert variant="success" style={{backgroundColor:'#d4edda', color:'#155724'}} onClose={() => setSuccess(null)} dismissible>{success}</Alert>}
 
       {/* Resume Section */}
       <Row className="mb-4">
@@ -223,7 +225,7 @@ const CandidateDashboard = () => {
                       <td style={{ color: theme.colors.text.secondary }}>{job.location}</td>
                       <td>
                         <Badge style={{ 
-                          background: job.status === 'OPEN' ? theme.colors.primary.gradientButton : 'linear-gradient(to right, #6c757d, #495057)'
+                          background: job.status === 'OPEN' ? 'linear-gradient(to right, #28a745, #20c997)' : 'linear-gradient(to right, #dc3545, #c82333)'
                         }}>
                           {job.status}
                         </Badge>
@@ -515,7 +517,12 @@ const CandidateDashboard = () => {
                       {interview.interviewer?.name || interview.interviewerName || '-'}
                     </td>
                     <td>
-                      {getStageBadge(interview.result)}
+                        <Badge style={{ 
+                      background: interview.result === 'PASSED' ? 'linear-gradient(to right, #28a745, #20c997)' :
+                                'linear-gradient(to right, #dc3545, #c82333)'
+                    }}>
+                      {interview.result}
+                    </Badge>
                     </td>
                     <td className="text-break" style={{ maxWidth: '300px', color: theme.colors.text.secondary }}>
                       {interview.feedback || '-'}
@@ -575,7 +582,7 @@ const CandidateDashboard = () => {
               <div className="mb-4">
                 <h6 className="text-muted mb-2">Result</h6>
                 <Badge style={{ 
-                  background: selectedFeedback.result === 'PASS' ? 'linear-gradient(to right, #28a745, #20c997)' :
+                  background: selectedFeedback.result === 'PASSED' ? 'linear-gradient(to right, #28a745, #20c997)' :
                             'linear-gradient(to right, #dc3545, #c82333)'
                 }}>
                   {selectedFeedback.result}

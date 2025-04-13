@@ -19,16 +19,6 @@ const interviewService = {
   updateInterviewStatus: async (interviewId, data) => {
     const response = await api.put(`/interviews/${interviewId}/result`, data);
     return response.data;
-  },
-
-  passInterview: async (interviewId, data) => {
-    const response = await api.post(`/interviews/${interviewId}/pass`, data);
-    return response.data;
-  },
-
-  rejectInterview: async (interviewId, data) => {
-    const response = await api.post(`/interviews/${interviewId}/reject`, data);
-    return response.data;
   }
 };
 
