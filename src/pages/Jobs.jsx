@@ -213,24 +213,26 @@ const Jobs = () => {
                       {job.status}
                     </Badge>
                   </td>
-                  {user.role === 'CANDIDATE' && (
-                    <td>
-                      <Button
-                        className="btn-gradient"
-                        size="sm"
-                        onClick={() => handleApplyJob(job)}
-                        disabled={appliedJobs?.some(applied => applied.jobId === job.id)}
-                        style={{
-                          border: 'none',
-                          padding: '0.5rem 1rem',
-                          fontWeight: 500,
-                          background: appliedJobs?.some(applied => applied.jobId === job.id) ? 'btn-gradient' : 'linear-gradient(to right, #28a745, #20c997)'
-                        }}
-                      >
-                        {appliedJobs?.some(applied => applied.jobId === job.id) ? 'Applied' : 'Apply'}
-                      </Button>
-                    </td>
-                  )}
+                  {appliedJobs?.some(applied => applied.jobId === job.id) ? (
+                        <td>
+                        <Badge style={{ 
+                          background:'linear-gradient(to right, #0088cc, #00a3cc)'
+                        }}>
+                          APPLIED
+                        </Badge>
+                      </td>
+                      ):(
+                        <td>
+                        <Button
+                          className="btn-gradient"
+                          size="sm"
+                          onClick={() => handleApplyJob(job)}
+                          disabled={appliedJobs?.some(applied => applied.jobId === job.id)}
+                        >
+                          Apply
+                        </Button>
+                      </td>
+                      )}
                 </tr>
               ))}
             </tbody>

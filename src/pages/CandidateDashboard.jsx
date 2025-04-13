@@ -101,10 +101,7 @@ const CandidateDashboard = () => {
       ]);
 
       setJobs(jobsResponse);
-      setAppliedJobs(appliedJobsResponse);
-
-      console.lo(appliedJobsResponse)
-      
+      setAppliedJobs(appliedJobsResponse);      
       
       setSelectedJob(null);
       setSuccess('Successfully applied for the job!');
@@ -191,9 +188,9 @@ const CandidateDashboard = () => {
                   size="sm"
                   onClick={() => navigate('/jobs')}
                   style={{ 
+                    background: theme.colors.primary.gradientButton,
                     border: '1px solid #e5e7eb',
-                    color: theme.colors.text.primary,
-                    background: 'white',
+                    color: theme.colors.text.light,
                     boxShadow: 'none',
                     transition: 'all 0.2s',
                     '&:hover': {
@@ -251,8 +248,6 @@ const CandidateDashboard = () => {
                         </Button>
                       </td>
                       )}
-                      
-                      
                     </tr>
                   ))}
                 </tbody>
