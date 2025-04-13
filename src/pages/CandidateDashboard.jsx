@@ -34,8 +34,6 @@ const CandidateDashboard = () => {
   const [feedbackError, setFeedbackError] = useState('');
   const [showJobDetailsModal, setShowJobDetailsModal] = useState(false);
 
-  console.log(selectedJob, 'selectedJob')
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -712,7 +710,7 @@ const CandidateDashboard = () => {
         </Modal.Header>
         <Modal.Body style={{ background: 'white' }}>
             <div>
-              {selectedJob.scheduledInterviews.map((interview) => (
+              {selectedJob &&selectedJob.scheduledInterviews.map((interview) => (
                               <div className="mb-4">
                               <p className="mb-2"><strong>Type:</strong> {interview.interviewType}</p>
                               <p className="mb-2"><strong>Date:</strong> {new Date(interview.dateTime).toLocaleString()}</p>
