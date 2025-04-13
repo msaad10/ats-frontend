@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { saveAs } from 'file-saver';
 import interviewService from '../services/interviewService';
 import candidateService from '../services/candidateService';
-import { FaDownload, FaCommentDots, FaEye, FaStar } from 'react-icons/fa';
+import { FaDownload, FaCommentDots, FaEye, FaStar, FaInfoCircle } from 'react-icons/fa';
 import StyledTable from '../components/common/StyledTable';
 import { theme } from '../styles/theme';
 import StarRating from '../components/common/StarRating';
@@ -29,6 +29,7 @@ const InterviewerDashboard = () => {
   const [submitting, setSubmitting] = useState(false);
   const [showFeedbackDetailsModal, setShowFeedbackDetailsModal] = useState(false);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
+  const [showInterviewDetailsModal, setShowInterviewDetailsModal] = useState(false);
 
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -182,6 +183,11 @@ const InterviewerDashboard = () => {
     setShowFeedbackDetailsModal(true);
   };
 
+  const handleViewInterviewDetails = (interview) => {
+    setSelectedInterview(interview);
+    setShowInterviewDetailsModal(true);
+  };
+
   if (loading) {
     return (
       <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
@@ -308,6 +314,25 @@ const InterviewerDashboard = () => {
                           </Button>
                         </OverlayTrigger>
                       )}
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip>View Details</Tooltip>}
+                      >
+                        <Button
+                          className="btn-gradient"
+                          size="sm"
+                          onClick={() => handleViewInterviewDetails(interview)}
+                          style={{
+                            border: 'none',
+                            padding: '0.5rem',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                        >
+                          <FaInfoCircle />
+                        </Button>
+                      </OverlayTrigger>
                     </div>
                   </td>
                 </tr>
@@ -469,6 +494,54 @@ const InterviewerDashboard = () => {
             </div>
           )}
         </Modal.Body>
+      </Modal>
+
+      {/* Interview Details Modal */}
+      <Modal show={showInterviewDetailsModal} onHide={() => setShowInterviewDetailsModal(false)} size="lg">
+        <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)`, borderBottom: '1px solid #e5e7eb' }}>
+          <Modal.Title style={{ color: theme.colors.text.light, fontSize: '1.25rem', fontWeight: 500 }}>
+            Interview Details
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ background: 'white' }}>
+          {selectedInterview && (
+            <div>
+              <div className="mb-4">
+                <p className="mb-0"><strong>Type:</strong> {selectedInterview.interviewType}</p>
+                <p className="mb-0"><strong>Date:</strong> {new Date(selectedInterview.dateTime).toLocaleString()}</p>
+                <p className="mb-0"><strong>Status:</strong> {selectedInterview.result}</p>
+              </div>
+
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Details</h6>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={selectedInterview.details || 'No additional details available'}
+                  disabled
+                  style={{
+                    background: theme.colors.background,
+                    border: '1px solid #e5e7eb',
+                    color: theme.colors.text.secondary
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer style={{ background: 'white', borderTop: '1px solid #e5e7eb' }}>
+          <Button 
+            onClick={() => setShowInterviewDetailsModal(false)}
+            style={{ 
+              background: 'white',
+              border: '1px solid #e5e7eb',
+              color: theme.colors.text.primary,
+              boxShadow: 'none'
+            }}
+          >
+            Close
+          </Button>
+        </Modal.Footer>
       </Modal>
     </Container>
   );

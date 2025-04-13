@@ -6,7 +6,7 @@ import jobService from '../services/jobService';
 import candidateService from '../services/candidateService';
 import StyledTable from '../components/common/StyledTable';
 import { theme } from '../styles/theme';
-import { FaEye, FaStar, FaMapMarkerAlt, FaBriefcase, FaMoneyBillWave, FaArrowRight } from 'react-icons/fa';
+import { FaEye, FaStar, FaMapMarkerAlt, FaBriefcase, FaMoneyBillWave, FaArrowRight, FaInfoCircle } from 'react-icons/fa';
 import StarRating from '../components/common/StarRating';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -33,6 +33,8 @@ const CandidateDashboard = () => {
   const [loadingFeedback, setLoadingFeedback] = useState(false);
   const [feedbackError, setFeedbackError] = useState('');
   const [showJobDetailsModal, setShowJobDetailsModal] = useState(false);
+
+  console.log(selectedJob, 'selectedJob')
 
   useEffect(() => {
     const fetchData = async () => {
@@ -369,6 +371,25 @@ const CandidateDashboard = () => {
                                <FaEye />
                              </Button>
                            </OverlayTrigger>
+                           <OverlayTrigger
+                             placement="top"
+                             overlay={<Tooltip>View Details</Tooltip>}
+                           >
+                             <Button
+                               className="btn-gradient"
+                               size="sm"
+                               onClick={() => handleViewJobDetails(job)}
+                               style={{
+                                 border: 'none',
+                                 padding: '0.5rem',
+                                 display: 'inline-flex',
+                                 alignItems: 'center',
+                                 justifyContent: 'center'
+                               }}
+                             >
+                               <FaInfoCircle />
+                             </Button>
+                           </OverlayTrigger>
                          </div>
                        </td>
                       ) : (
@@ -682,50 +703,42 @@ const CandidateDashboard = () => {
         </Modal.Body>
       </Modal>
 
-      {/* Job Details Modal */}
+      {/* Interview Details Modal */}
       <Modal show={showJobDetailsModal} onHide={() => setShowJobDetailsModal(false)} size="lg">
-        <Modal.Header closeButton style={{ background: 'white', borderBottom: '1px solid #e5e7eb' }}>
-          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
-            {selectedJob?.title}
+        <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)`, borderBottom: '1px solid #e5e7eb' }}>
+          <Modal.Title style={{ color: theme.colors.text.light, fontSize: '1.25rem', fontWeight: 500 }}>
+            Interview Details
           </Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ background: 'white' }}>
-          {selectedJob && (
             <div>
-              <div className="mb-4">
-                <h6 className="text-muted mb-2">Department</h6>
-                <p className="mb-0">{selectedJob.department}</p>
-              </div>
-
-              <div className="mb-4">
-                <h6 className="text-muted mb-2">Location</h6>
-                <p className="mb-0">{selectedJob.location}</p>
-              </div>
-
-              <div className="mb-4">
-                <h6 className="text-muted mb-2">Job Type</h6>
-                <p className="mb-0">{selectedJob.type}</p>
-              </div>
-
-              <div className="mb-4">
-                <h6 className="text-muted mb-2">Salary</h6>
-                <p className="mb-0">{selectedJob.salary}</p>
-              </div>
-
-              <div className="mb-4">
-                <h6 className="text-muted mb-2">Description</h6>
-                <div 
-                  className="p-3 rounded" 
-                  style={{ 
+              {selectedJob.scheduledInterviews.map((interview) => (
+                              <div className="mb-4">
+                              <p className="mb-2"><strong>Type:</strong> {interview.interviewType}</p>
+                              <p className="mb-2"><strong>Date:</strong> {new Date(interview.dateTime).toLocaleString()}</p>
+                              <p className="mb-2"><strong>Status:</strong> {interview.result}</p>
+                              <div className="mb-4">
+                              <strong><h6 className="mb-2">Details:</h6></strong>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={interview.details || 'No additional details available'}
+                  disabled
+                  style={{
                     background: theme.colors.background,
                     border: '1px solid #e5e7eb',
-                    minHeight: '100px'
+                    color: theme.colors.text.secondary
                   }}
-                  dangerouslySetInnerHTML={{ __html: selectedJob.description }}
                 />
               </div>
+                            </div>
+                ))}
+
+              
+
+  
             </div>
-          )}
+          
         </Modal.Body>
         <Modal.Footer style={{ background: 'white', borderTop: '1px solid #e5e7eb' }}>
           <Button 
