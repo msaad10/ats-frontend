@@ -598,7 +598,7 @@ const CandidateDashboard = () => {
                             <FaStar
                               key={star}
                               size={20}
-                              color={star <= score.score ? theme.colors.primary : '#e4e5e9'}
+                              color={star <= score.score ? `rgb(106, 17, 203)` : '#e4e5e9'}
                             />
                           ))}
                           <span className="ms-2 text-muted">{score.score} / 5</span>

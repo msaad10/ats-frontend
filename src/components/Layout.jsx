@@ -82,7 +82,7 @@ const Layout = ({ children }) => {
         <Container>
           <div className="text-center">
             <p className="mb-0">
-              © {new Date().getFullYear()} ATS Portal. All rights reserved.
+              © {new Date().getFullYear()} HirePearls. All rights reserved.
             </p>
           </div>
         </Container>

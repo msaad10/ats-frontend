@@ -54,7 +54,7 @@ const Login = () => {
               <h1 className="display-5 fw-bold mb-4">Welcome</h1>
               <p className="lead mb-5">Sign in to continue access</p>
               <div className="mt-auto">
-                <p className="small mb-0 text-white-50">www.ats.com</p>
+                <p className="small mb-0" style={{ color: theme.colors.text.light }}>Powered by 10Pearls</p>
               </div>
             </div>
           </div>
@@ -73,8 +73,7 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email Address"
                   required
-                  className="border-0 border-bottom rounded-0"
-                  style={{ paddingLeft: '5px' }}
+                  style={{ paddingLeft: '10px', background: 'white', border:`1px solid rgb(106, 17, 203)` }}
                 />
               </Form.Group>
 
@@ -85,8 +84,7 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
                   required
-                  className="border-0 border-bottom rounded-0"
-                  style={{ paddingLeft: '5px' }}
+                  style={{ paddingLeft: '10px', background: 'white', border:`1px solid rgb(106, 17, 203)` }}
                 />
               </Form.Group>
 

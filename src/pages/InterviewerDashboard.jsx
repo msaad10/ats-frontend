@@ -128,9 +128,9 @@ const InterviewerDashboard = () => {
       const interviewScores = [];
       
       // Add scores based on interview type
-      if (selectedInterview?.interviewType === 'INITIAL_SCREENING' || 
-          selectedInterview?.interviewType === 'ARCHITECT' || 
-          selectedInterview?.interviewType === 'DIRECTOR') {
+      if (selectedInterview?.interviewType === 'Initial Screening' || 
+          selectedInterview?.interviewType === 'Architect' || 
+          selectedInterview?.interviewType === 'Director') {
         interviewScores.push(
           { criteria: 'logicBuilding', score: parseInt(feedbackForm.logicBuilding) },
           { criteria: 'oop', score: parseInt(feedbackForm.oop) },
@@ -139,7 +139,7 @@ const InterviewerDashboard = () => {
       }
 
       // Add communication score for DIRECTOR interviews
-      if (selectedInterview?.interviewType === 'DIRECTOR') {
+      if (selectedInterview?.interviewType === 'Director') {
         interviewScores.push({ criteria: 'communication', score: parseInt(feedbackForm.communication) });
       }
 
@@ -201,6 +201,7 @@ const InterviewerDashboard = () => {
     return <Badge bg={variants[stage]}>{stage}</Badge>;
   };
 
+  console.log(selectedInterview, 'selectedInterview')
   return (
     <Container fluid>
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -338,9 +339,9 @@ const InterviewerDashboard = () => {
               </Form.Select>
             </Form.Group>
 
-            {(selectedInterview?.interviewType === 'INITIAL_SCREENING' || 
-              selectedInterview?.interviewType === 'ARCHITECT' || 
-              selectedInterview?.interviewType === 'DIRECTOR') && (
+            {(selectedInterview?.interviewType === 'Initial Screening' || 
+          selectedInterview?.interviewType === 'Architect' || 
+          selectedInterview?.interviewType === 'Director') && (
               <>
                 <StarRating
                   label="Programming and Logic Building"

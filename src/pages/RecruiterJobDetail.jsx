@@ -6,7 +6,7 @@ import { saveAs } from 'file-saver';
 import jobService from '../services/jobService';
 import candidateService from '../services/candidateService';
 import interviewService from '../services/interviewService';
-import { FaDownload, FaCalendarAlt, FaEye, FaStar } from 'react-icons/fa';
+import { FaDownload, FaCalendarAlt, FaEye, FaStar, FaFilePdf } from 'react-icons/fa';
 import StyledTable from '../components/common/StyledTable';
 import { theme } from '../styles/theme';
 import StarRating from '../components/common/StarRating';
@@ -38,6 +38,7 @@ const RecruiterJobDetail = () => {
   const [candidateInterviews, setCandidateInterviews] = useState([]);
   const [showFeedbackDetailsModal, setShowFeedbackDetailsModal] = useState(false);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
+  const [sortOrder, setSortOrder] = useState('desc');
 
   console.log(selectedCandidate, "selectedCandidate");
   useEffect(() => {
@@ -180,6 +181,18 @@ const RecruiterJobDetail = () => {
     setShowFeedbackDetailsModal(true);
   };
 
+  const handleSortChange = (e) => {
+    setSortOrder(e.target.value);
+  };
+
+  const sortedCandidates = [...candidates].sort((a, b) => {
+    if (sortOrder === 'desc') {
+      return b.matchScore - a.matchScore;
+    } else {
+      return a.matchScore - b.matchScore;
+    }
+  });
+
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
@@ -261,37 +274,77 @@ const RecruiterJobDetail = () => {
       </Row>
 
       {/* Candidates Section */}
-      <Row>
-        <Col>
-          <Card>
-            <Card.Header className="bg-white">
+      <div className="dashboard-section">
+        <Card>
+          <Card.Header className="bg-white">
+            <div className="d-flex justify-content-between align-items-center">
               <h5 className="mb-0" style={{ color: theme.colors.text.primary }}>Applied Candidates</h5>
-            </Card.Header>
-            <Card.Body>
+              <Form.Select
+                value={sortOrder}
+                onChange={handleSortChange}
+                style={{
+                  background: 'white',
+                  border: '1px solid rgb(106, 17, 203)',
+                  color: theme.colors.text.primary,
+                  padding: '0.5rem 2rem 0.5rem 1rem',
+                  width: 'auto',
+                  minWidth: '250px'
+                }}
+              >
+                <option value="desc">Sort by Resume Score (High to Low)</option>
+                <option value="asc">Sort by Resume Score (Low to High)</option>
+              </Form.Select>
+            </div>
+          </Card.Header>
+          <Card.Body>
+            {loading ? (
+              <div className="text-center py-4">
+                <Spinner animation="border" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </Spinner>
+              </div>
+            ) : error ? (
+              <Alert variant="danger">{error}</Alert>
+            ) : (
               <StyledTable>
                 <thead>
                   <tr>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Applied Date</th>
+                    <th>Resume Score</th>
                     <th>Status</th>
-                    <th>Match Score</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {candidates.map((candidate) => (
+                  {sortedCandidates.map((candidate) => (
                     <tr key={candidate.id}>
                       <td style={{ color: theme.colors.text.primary }}>{candidate.userName}</td>
                       <td style={{ color: theme.colors.text.secondary }}>{candidate.email}</td>
-                      <td style={{ color: theme.colors.text.secondary }}>
-                        {new Date(candidate.appliedAt).toLocaleDateString()}
+                      <td style={{ color: theme.colors.text.secondary }}>{new Date(candidate.appliedAt).toLocaleDateString()}</td>
+                      <td>
+                        <div className="d-flex align-items-center gap-2">
+                          <div className="progress" style={{ width: '100px', height: '8px' }}>
+                            <div
+                              className="progress-bar"
+                              role="progressbar"
+                              style={{
+                                width: `${candidate.matchScore}%`,
+                                background: theme.colors.primary.gradientButton
+                              }}
+                              aria-valuenow={candidate.matchScore}
+                              aria-valuemin="0"
+                              aria-valuemax="100"
+                            />
+                          </div>
+                          <span style={{ color: theme.colors.text.primary }}>
+                            {candidate.matchScore}%
+                          </span>
+                        </div>
                       </td>
                       <td>
                         {getStatusBadge(candidate.currentStage)}
-                      </td>
-                      <td>
-                        {candidate.matchScore}
                       </td>
                       <td>
                         <div className="d-flex gap-2">
@@ -308,45 +361,43 @@ const RecruiterJobDetail = () => {
                             </Button>
                           </OverlayTrigger>
 
-                              {candidate.currentStage != 'HIRED' && candidate.currentStage != 'REJECTED' && (
+                          {candidate.currentStage != 'HIRED' && candidate.currentStage != 'REJECTED' && (
                             <OverlayTrigger
+                              placement="top"
+                              overlay={<Tooltip>Schedule Interview</Tooltip>}
+                            >
+                              <Button
+                                className="btn-gradient"
+                                size="sm"
+                                onClick={() => handleScheduleInterview(candidate)}
+                              >
+                                <FaCalendarAlt />
+                              </Button>
+                            </OverlayTrigger>
+                          )}
+
+                          <OverlayTrigger
                             placement="top"
-                            overlay={<Tooltip>Schedule Interview</Tooltip>}
+                            overlay={<Tooltip>View Interviews</Tooltip>}
                           >
                             <Button
                               className="btn-gradient"
                               size="sm"
-                              onClick={() => handleScheduleInterview(candidate)}
+                              onClick={() => handleViewFeedback(candidate)}
                             >
-                              <FaCalendarAlt />
+                              <FaEye />
                             </Button>
                           </OverlayTrigger>
-                              )}
-
-
-
-                            <OverlayTrigger
-                                placement="top"
-                                overlay={<Tooltip>View Interviews</Tooltip>}
-                              >
-                                <Button
-                                  className="btn-gradient"
-                                  size="sm"
-                                  onClick={() => handleViewFeedback(candidate)}
-                                >
-                                  <FaEye />
-                                </Button>
-                              </OverlayTrigger>
                         </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </StyledTable>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+            )}
+          </Card.Body>
+        </Card>
+      </div>
 
       {/* Interview Scheduling Modal */}
       <Modal show={showInterviewModal} onHide={() => setShowInterviewModal(false)}>
@@ -554,7 +605,8 @@ const RecruiterJobDetail = () => {
                 <h6 className="text-muted mb-2">Result</h6>
                 <Badge style={{ 
                   background: selectedFeedback.result === 'PASSED' ? 'linear-gradient(to right, #28a745, #20c997)' :
-                            'linear-gradient(to right, #dc3545, #c82333)'
+                            selectedFeedback.result === 'FAILED' ?  'linear-gradient(to right, #dc3545, #c82333)' :
+                            'linear-gradient(to right, rgb(106, 17, 203), rgb(37, 117, 252))'
                 }}>
                   {selectedFeedback.result}
                 </Badge>

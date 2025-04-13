@@ -277,9 +277,9 @@ const RecruiterDashboard = () => {
       <Row className="mb-4">
         <Col>
           <Card>
-            <Card.Header style={{ background: `rgb(100, 96, 104)` }}>
+            <Card.Header className="bg-white">
               <div className="d-flex justify-content-between align-items-center">
-                <h5 className="mb-0" style={{ color: theme.colors.text.light }}>Active Jobs</h5>
+                <h5 className="mb-0" style={{ color: theme.colors.text.primary }}>Active Jobs</h5>
                 <Button 
                   className="btn-gradient"
                   onClick={() => setShowJobModal(true)}
