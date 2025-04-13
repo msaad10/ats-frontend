@@ -332,8 +332,8 @@ const Jobs = () => {
 
       {/* Job Details Modal */}
       <Modal show={showJobDetailsModal} onHide={() => setShowJobDetailsModal(false)} size="lg">
-        <Modal.Header closeButton style={{ background: 'white', borderBottom: '1px solid #e5e7eb' }}>
-          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+        <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)`, borderBottom: '1px solid #e5e7eb' }}>
+          <Modal.Title style={{ color: theme.colors.text.light, fontSize: '1.25rem', fontWeight: 500 }}>
             {selectedJob?.title}
           </Modal.Title>
         </Modal.Header>

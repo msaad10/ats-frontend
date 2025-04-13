@@ -568,7 +568,8 @@ const CandidateDashboard = () => {
                     <td>
                         <Badge style={{ 
                       background: interview.result === 'PASSED' ? 'linear-gradient(to right, #28a745, #20c997)' :
-                                'linear-gradient(to right, #dc3545, #c82333)'
+                      interview.result === 'FAILED' ? 'linear-gradient(to right, #dc3545, #c82333)' :
+                      theme.colors.primary.gradientButton
                     }}>
                       {interview.result}
                     </Badge>
@@ -632,7 +633,8 @@ const CandidateDashboard = () => {
                 <h6 className="text-muted mb-2">Result</h6>
                 <Badge style={{ 
                   background: selectedFeedback.result === 'PASSED' ? 'linear-gradient(to right, #28a745, #20c997)' :
-                            'linear-gradient(to right, #dc3545, #c82333)'
+                            selectedFeedback.result === 'FAILED' ? 'linear-gradient(to right, #dc3545, #c82333)' :
+                            theme.colors.primary.gradientButton
                 }}>
                   {selectedFeedback.result}
                 </Badge>
