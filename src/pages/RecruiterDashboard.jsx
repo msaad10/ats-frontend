@@ -206,7 +206,7 @@ const RecruiterDashboard = () => {
       title: job.title,
       department: job.department,
       location: job.location,
-      description: job.description,
+      description: job.description || '',
       status: job.status
     });
     setShowEditJobModal(true);
@@ -268,6 +268,8 @@ const RecruiterDashboard = () => {
     return <div>Loading...</div>;
   }
 
+  console.log(editJobForm.description)
+
   return (
     <Container fluid className="py-4">
       {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
@@ -308,7 +310,7 @@ const RecruiterDashboard = () => {
                       <td style={{ color: theme.colors.text.secondary }}>{new Date(job.createdAt).toLocaleDateString()}</td>
                       <td>
                         <Badge style={{ 
-                          background: job.status === 'OPEN' ? theme.colors.primary.gradientButton :
+                          background: job.status === 'OPEN' ? 'linear-gradient(to right, #28a745, #20c997)' :
                                     job.status === 'CLOSED' ? 'linear-gradient(to right, #dc3545, #c82333)' :
                                     'linear-gradient(to right, #6c757d, #495057)'
                         }}>
@@ -590,8 +592,9 @@ const RecruiterDashboard = () => {
             <Form.Group className="mb-3">
               <Form.Label>Description</Form.Label>
               <RichTextEditor
-                value={editJobForm.description}
-                onChange={(value) => setEditJobForm({ ...editJobForm, description: value })}
+                key={`${editingJob?.id}-description`}
+                value={editingJob?.description || ''}
+                onChange={(value) => setEditJobForm(prev => ({ ...prev, description: value }))}
                 placeholder="Enter job description..."
               />
             </Form.Group>
