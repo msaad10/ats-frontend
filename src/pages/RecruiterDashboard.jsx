@@ -433,18 +433,21 @@ const RecruiterDashboard = () => {
 
             <Form.Group className="mb-3">
               <Form.Label>Description</Form.Label>
-              <RichTextEditor
-                value={jobForm.description}
-                onChange={(value) => setJobForm({ ...jobForm, description: value })}
-              />
-              {/* <Form.Control
+              <Form.Control
                 as="textarea"
-                rows={4}
+                rows={5}
+                name="description"
                 value={jobForm.description}
                 onChange={(e) => setJobForm({ ...jobForm, description: e.target.value })}
                 placeholder="Enter job description"
-                required
-              /> */}
+                style={{
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '0.375rem',
+                  padding: '0.75rem',
+                  resize: 'vertical'
+                }}
+              />
             </Form.Group>
 
             <Form.Group className="mb-3">
@@ -596,11 +599,20 @@ const RecruiterDashboard = () => {
 
             <Form.Group className="mb-3">
               <Form.Label>Description</Form.Label>
-              <RichTextEditor
-                key={`${editingJob?.id}-description`}
-                value={editingJob?.description || ''}
-                onChange={(value) => setEditJobForm(prev => ({ ...prev, description: value }))}
-                placeholder="Enter job description..."
+              <Form.Control
+                as="textarea"
+                rows={5}
+                name="description"
+                value={editJobForm.description}
+                onChange={(e) => setEditJobForm({ ...editJobForm, description: e.target.value })}
+                placeholder="Enter job description"
+                style={{
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '0.375rem',
+                  padding: '0.75rem',
+                  resize: 'vertical'
+                }}
               />
             </Form.Group>
 

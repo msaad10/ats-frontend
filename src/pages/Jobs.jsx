@@ -6,7 +6,7 @@ import jobService from '../services/jobService';
 import candidateService from '../services/candidateService';
 import { theme } from '../styles/theme';
 import StyledTable from '../components/common/StyledTable';
-import { FaMapMarkerAlt, FaBriefcase, FaMoneyBillWave } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaBriefcase, FaMoneyBillWave, FaHome } from 'react-icons/fa';
 
 const Jobs = () => {
   const navigate = useNavigate();
@@ -123,19 +123,34 @@ const Jobs = () => {
         <Col>
           <div className="d-flex justify-content-between align-items-center">
             <h2>All Jobs</h2>
-            {user.role === 'RECRUITER' && (
+            <div className="d-flex gap-3">
               <Button 
-                className="btn-gradient"
-                onClick={() => navigate('/recruiter/jobs/create')}
+                variant="primary"
+                onClick={() => navigate('/candidate/dashboard')}
                 style={{
+                  background: theme.colors.primary.gradientButton,
                   border: 'none',
                   padding: '0.5rem 1rem',
                   fontWeight: 500
                 }}
               >
-                Create New Job
+                <FaHome className="me-2" /> Dashboard
               </Button>
-            )}
+              {user.role === 'RECRUITER' && (
+                <Button 
+                  variant="primary"
+                  onClick={() => navigate('/recruiter/jobs/create')}
+                  style={{
+                    background: theme.colors.primary.gradientButton,
+                    border: 'none',
+                    padding: '0.5rem 1rem',
+                    fontWeight: 500
+                  }}
+                >
+                  Create New Job
+                </Button>
+              )}
+            </div>
           </div>
         </Col>
       </Row>
