@@ -3,6 +3,7 @@ import { Form, Button, Card, Alert, Spinner } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { theme } from '../styles/theme';
+import { FaUserTie, FaUserGraduate } from 'react-icons/fa';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -91,11 +92,55 @@ const Register = () => {
 
   return (
     <div className="auth-container">
-      <Card className="auth-card">
-        <Card.Body>
-          <h2 className="text-center mb-4">Recruiter/Interviewer Registration</h2>
-          {error && <Alert variant="danger">{error}</Alert>}
-          <Form onSubmit={handleSubmit} className="w-100">
+      <div className="auth-card">
+        <div className="auth-header">
+          <h2>Create Account</h2>
+          <p className="text-muted">Choose your role to get started</p>
+        </div>
+
+        <div className="auth-body">
+          <div className="role-selection">
+            <Button
+              className={`role-button ${formData.role === 'RECRUITER' ? 'active' : ''}`}
+              onClick={() => setFormData({ ...formData, role: 'RECRUITER' })}
+              style={{
+                background: formData.role === 'RECRUITER' ? theme.colors.primary.gradientButton : 'white',
+                border: '1px solid #e5e7eb',
+                color: formData.role === 'RECRUITER' ? 'white' : theme.colors.text.primary,
+                padding: '1rem',
+                width: '100%',
+                marginBottom: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <FaUserTie size={20} />
+              <span>I'm a Recruiter</span>
+            </Button>
+
+            <Button
+              className={`role-button ${formData.role === 'INTERVIEWER' ? 'active' : ''}`}
+              onClick={() => setFormData({ ...formData, role: 'INTERVIEWER' })}
+              style={{
+                background: formData.role === 'INTERVIEWER' ? theme.colors.primary.gradientButton : 'white',
+                border: '1px solid #e5e7eb',
+                color: formData.role === 'INTERVIEWER' ? 'white' : theme.colors.text.primary,
+                padding: '1rem',
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <FaUserGraduate size={20} />
+              <span>I'm an Interviewer</span>
+            </Button>
+          </div>
+
+          <Form onSubmit={handleSubmit} className="mt-4">
             <div className="row">
               <div className="col-md-6">
                 <Form.Group className="mb-3">
@@ -107,6 +152,12 @@ const Register = () => {
                     onChange={handleChange}
                     placeholder="Enter your first name"
                     required
+                    style={{
+                      background: 'white',
+                      border: '1px solid #e5e7eb',
+                      color: theme.colors.text.primary,
+                      padding: '0.75rem'
+                    }}
                   />
                 </Form.Group>
               </div>
@@ -120,6 +171,12 @@ const Register = () => {
                     onChange={handleChange}
                     placeholder="Enter your last name"
                     required
+                    style={{
+                      background: 'white',
+                      border: '1px solid #e5e7eb',
+                      color: theme.colors.text.primary,
+                      padding: '0.75rem'
+                    }}
                   />
                 </Form.Group>
               </div>
@@ -134,23 +191,13 @@ const Register = () => {
                 onChange={handleChange}
                 placeholder="Enter your email"
                 required
+                style={{
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  color: theme.colors.text.primary,
+                  padding: '0.75rem'
+                }}
               />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Role</Form.Label>
-              <Form.Select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                required
-              >
-                <option value="RECRUITER">Recruiter</option>
-                <option value="INTERVIEWER">Interviewer</option>
-              </Form.Select>
-              <Form.Text className="text-muted">
-                Note: Admin accounts can only be created by existing administrators
-              </Form.Text>
             </Form.Group>
 
             <Form.Group className="mb-3">
@@ -162,6 +209,12 @@ const Register = () => {
                 onChange={handleChange}
                 placeholder="Enter your password"
                 required
+                style={{
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  color: theme.colors.text.primary,
+                  padding: '0.75rem'
+                }}
               />
               <Form.Text className="text-muted">
                 Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number
@@ -177,44 +230,46 @@ const Register = () => {
                 onChange={handleChange}
                 placeholder="Confirm your password"
                 required
+                style={{
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  color: theme.colors.text.primary,
+                  padding: '0.75rem'
+                }}
               />
             </Form.Group>
 
             <Button
               type="submit"
-              className="w-100 mb-3"
+              className="w-100"
               style={{
                 background: theme.colors.primary.gradientButton,
                 border: 'none',
                 padding: '0.75rem',
                 fontSize: '1rem',
-                fontWeight: 500
+                fontWeight: 500,
+                marginTop: '1rem'
               }}
               disabled={loading}
             >
               {loading ? (
                 <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
               ) : (
-                'Register'
+                'Create Account'
               )}
             </Button>
-            <div className="text-center">
-              <p className="mb-2" style={{ color: theme.colors.text.secondary }}>
-                Already have an account?{' '}
-                <Link to="/login" style={{ color: theme.colors.primary.main }}>
-                  Sign in here
-                </Link>
-              </p>
-              <p className="mb-0" style={{ color: theme.colors.text.secondary }}>
-                Want to apply for jobs?{' '}
-                <Link to="/register/candidate" style={{ color: theme.colors.primary.main }}>
-                  Register as a candidate
-                </Link>
-              </p>
-            </div>
           </Form>
-        </Card.Body>
-      </Card>
+
+          <div className="auth-footer mt-4">
+            <p className="text-center text-muted mb-0">
+              Already have an account?{' '}
+              <Link to="/login" style={{ color: theme.colors.primary.main }}>
+                Sign in
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

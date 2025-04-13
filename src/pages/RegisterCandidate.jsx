@@ -3,6 +3,7 @@ import { Form, Button, Card, Alert, Spinner, Badge } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { theme } from '../styles/theme';
+import { FaTimes } from 'react-icons/fa';
 
 const RegisterCandidate = () => {
   const [formData, setFormData] = useState({
@@ -115,9 +116,13 @@ const RegisterCandidate = () => {
 
   return (
     <div className="auth-container">
-      <Card className="auth-card">
-        <Card.Body>
-          <h2 className="text-center mb-4">Candidate Registration</h2>
+      <div className="auth-card">
+        <div className="auth-header">
+          <h2>Candidate Registration</h2>
+          <p className="text-muted">Fill in your details to get started</p>
+        </div>
+
+        <div className="auth-body">
           {error && <Alert variant="danger">{error}</Alert>}
           <Form onSubmit={handleSubmit} className="w-100">
             <div className="row">
@@ -131,6 +136,12 @@ const RegisterCandidate = () => {
                     onChange={handleChange}
                     placeholder="Enter your first name"
                     required
+                    style={{
+                      background: 'white',
+                      border: '1px solid #e5e7eb',
+                      color: theme.colors.text.primary,
+                      padding: '0.75rem'
+                    }}
                   />
                 </Form.Group>
               </div>
@@ -144,6 +155,12 @@ const RegisterCandidate = () => {
                     onChange={handleChange}
                     placeholder="Enter your last name"
                     required
+                    style={{
+                      background: 'white',
+                      border: '1px solid #e5e7eb',
+                      color: theme.colors.text.primary,
+                      padding: '0.75rem'
+                    }}
                   />
                 </Form.Group>
               </div>
@@ -158,66 +175,13 @@ const RegisterCandidate = () => {
                 onChange={handleChange}
                 placeholder="Enter your email"
                 required
+                style={{
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  color: theme.colors.text.primary,
+                  padding: '0.75rem'
+                }}
               />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Skills</Form.Label>
-              <div className="d-flex gap-2 mb-2">
-                <Form.Control
-                  type="text"
-                  value={newSkill}
-                  onChange={(e) => setNewSkill(e.target.value)}
-                  placeholder="Add a skill"
-                  style={{ flex: 1 }}
-                />
-                <Button
-                  variant="outline-primary"
-                  onClick={handleAddSkill}
-                  style={{
-                    borderColor: theme.colors.primary.main,
-                    color: theme.colors.primary.main
-                  }}
-                >
-                  Add
-                </Button>
-              </div>
-              <div className="d-flex flex-wrap gap-2">
-                {formData.skills.map((skill, index) => (
-                  <Badge
-                    key={index}
-                    pill
-                    bg="light"
-                    text="dark"
-                    className="d-flex align-items-center gap-1"
-                    style={{
-                      padding: '0.5rem 1rem',
-                      background: theme.colors.primary.gradient,
-                      border: `1px solid ${theme.colors.primary.main}`,
-                      color: theme.colors.primary.gradient
-                    }}
-                  >
-                    {skill}
-                    <Button
-                      variant="link"
-                      className="p-0"
-                      onClick={() => handleRemoveSkill(skill)}
-                      style={{
-                        color: 'white',
-                        textDecoration: 'none',
-                        padding: '0 0.25rem'
-                      }}
-                    >
-                      ×
-                    </Button>
-                  </Badge>
-                ))}
-              </div>
-              {formData.skills.length === 0 && (
-                <Form.Text className="text-muted">
-                  Add at least one skill to your profile
-                </Form.Text>
-              )}
             </Form.Group>
 
             <Form.Group className="mb-3">
@@ -229,6 +193,12 @@ const RegisterCandidate = () => {
                 onChange={handleChange}
                 placeholder="Enter your password"
                 required
+                style={{
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  color: theme.colors.text.primary,
+                  padding: '0.75rem'
+                }}
               />
               <Form.Text className="text-muted">
                 Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number
@@ -244,44 +214,111 @@ const RegisterCandidate = () => {
                 onChange={handleChange}
                 placeholder="Confirm your password"
                 required
+                style={{
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  color: theme.colors.text.primary,
+                  padding: '0.75rem'
+                }}
               />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Skills</Form.Label>
+              <div className="d-flex gap-2 mb-2">
+                <Form.Control
+                  type="text"
+                  value={newSkill}
+                  onChange={(e) => setNewSkill(e.target.value)}
+                  placeholder="Add a skill"
+                  style={{
+                    background: 'white',
+                    border: '1px solid #e5e7eb',
+                    color: theme.colors.text.primary,
+                    padding: '0.75rem'
+                  }}
+                />
+                <Button
+                  onClick={handleAddSkill}
+                  style={{
+                    background: theme.colors.primary.gradientButton,
+                    border: 'none',
+                    padding: '0.75rem 1.5rem',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  Add
+                </Button>
+              </div>
+              <div className="d-flex flex-wrap gap-2">
+                {formData.skills.map((skill, index) => (
+                  <Badge
+                    key={index}
+                    style={{
+                      background: theme.colors.primary.gradientButton,
+                      padding: '0.5rem 1rem',
+                      fontSize: '0.875rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    {skill}
+                    <Button
+                      variant="link"
+                      className="p-0"
+                      onClick={() => handleRemoveSkill(index)}
+                      style={{ color: 'white', padding: 0 }}
+                    >
+                      <FaTimes />
+                    </Button>
+                  </Badge>
+                ))}
+              </div>
+              {formData.skills.length === 0 && (
+                <Form.Text className="text-muted">
+                  Add at least one skill to your profile
+                </Form.Text>
+              )}
             </Form.Group>
 
             <Button
               type="submit"
-              className="w-100 mb-3"
+              className="w-100"
               style={{
                 background: theme.colors.primary.gradientButton,
                 border: 'none',
                 padding: '0.75rem',
                 fontSize: '1rem',
-                fontWeight: 500
+                fontWeight: 500,
+                marginTop: '1rem'
               }}
               disabled={loading}
             >
               {loading ? (
                 <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
               ) : (
-                'Register'
+                'Create Account'
               )}
             </Button>
-            <div className="text-center">
-              <p className="mb-2" style={{ color: theme.colors.text.secondary }}>
-                Already have an account?{' '}
-                <Link to="/login" style={{ color: theme.colors.primary.main }}>
-                  Sign in here
-                </Link>
-              </p>
-              <p className="mb-0" style={{ color: theme.colors.text.secondary }}>
-                Looking to post jobs?{' '}
-                <Link to="/register" style={{ color: theme.colors.primary.main }}>
-                  Register as a recruiter
-                </Link>
-              </p>
-            </div>
           </Form>
-        </Card.Body>
-      </Card>
+
+          <div className="auth-footer mt-4">
+            <p className="text-center text-muted mb-0">
+              Already have an account?{' '}
+              <Link to="/login" style={{ color: theme.colors.primary.main }}>
+                Sign in
+              </Link>
+            </p>
+            <p className="text-center text-muted mb-0 mt-2">
+              Looking to post jobs?{' '}
+              <Link to="/register" style={{ color: theme.colors.primary.main }}>
+                Register as a recruiter
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
