@@ -13,33 +13,24 @@ A modern Applicant Tracking System built with React, Node.js, and MongoDB.
 ### Candidate Features
 - Job search and filtering
 - Job application management
-- Profile management
 - Interview scheduling
 - Application status tracking
 - Skills management
-- Resume upload and management
+- Resume upload
 
 ### Recruiter Features
 - Job posting and management
 - Candidate screening
 - Interview scheduling
 - Application review
-- Candidate communication
 - Job status management
 - Interview feedback review
 
 ### Interviewer Features
-- Interview scheduling
 - Candidate evaluation
 - Feedback submission
 - Rating system for different interview types
 - Interview history tracking
-
-### Admin Features
-- User management
-- System configuration
-- Analytics and reporting
-- Role management
 
 ## Installation
 
