@@ -334,17 +334,6 @@ const Jobs = () => {
                 <h6 className="text-muted mb-2">Location</h6>
                 <p className="mb-0">{selectedJob.location}</p>
               </div>
-
-              <div className="mb-4">
-                <h6 className="text-muted mb-2">Job Type</h6>
-                <p className="mb-0">{selectedJob.type}</p>
-              </div>
-
-              <div className="mb-4">
-                <h6 className="text-muted mb-2">Salary</h6>
-                <p className="mb-0">{selectedJob.salary}</p>
-              </div>
-
               <div className="mb-4">
                 <h6 className="text-muted mb-2">Description</h6>
                 <div 
