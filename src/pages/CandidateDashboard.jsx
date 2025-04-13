@@ -6,9 +6,10 @@ import jobService from '../services/jobService';
 import candidateService from '../services/candidateService';
 import StyledTable from '../components/common/StyledTable';
 import { theme } from '../styles/theme';
-import { FaEye, FaStar } from 'react-icons/fa';
+import { FaEye, FaStar, FaMapMarkerAlt, FaBriefcase, FaMoneyBillWave, FaArrowRight } from 'react-icons/fa';
 import StarRating from '../components/common/StarRating';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 const CandidateDashboard = () => {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ const CandidateDashboard = () => {
   const [candidateInterviews, setCandidateInterviews] = useState([]);
   const [loadingFeedback, setLoadingFeedback] = useState(false);
   const [feedbackError, setFeedbackError] = useState('');
+  const [showJobDetailsModal, setShowJobDetailsModal] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -134,6 +136,11 @@ const CandidateDashboard = () => {
     setShowFeedbackDetailsModal(true);
   };
 
+  const handleViewJobDetails = (job) => {
+    setSelectedJob(job);
+    setShowJobDetailsModal(true);
+  };
+
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
@@ -204,54 +211,101 @@ const CandidateDashboard = () => {
               </div>
             </Card.Header>
             <Card.Body>
-              <StyledTable>
-                <thead>
-                  <tr>
-                    <th>Title</th>
-                    <th>Department</th>
-                    <th>Location</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentJobs.map(job => (
-                    <tr key={job.id}>
-                      <td style={{ color: theme.colors.text.primary }}>{job.title}</td>
-                      <td style={{ color: theme.colors.text.secondary }}>{job.department}</td>
-                      <td style={{ color: theme.colors.text.secondary }}>{job.location}</td>
-                      <td>
-                        <Badge style={{ 
-                          background: job.status === 'OPEN' ? 'linear-gradient(to right, #28a745, #20c997)' : 'linear-gradient(to right, #dc3545, #c82333)'
-                        }}>
-                          {job.status}
-                        </Badge>
-                      </td>
+              <div className="dashboard-section">
+                <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                  
+                </div>
 
-                      {appliedJobs?.some(applied => applied.jobId === job.id) ? (
-                        <td>
-                        <Badge style={{ 
-                          background:'linear-gradient(to right, #0088cc, #00a3cc)'
-                        }}>
-                          APPLIED
-                        </Badge>
-                      </td>
-                      ):(
-                        <td>
-                        <Button
-                          className="btn-gradient"
-                          size="sm"
-                          onClick={() => handleApplyJob(job)}
-                          disabled={appliedJobs?.some(applied => applied.jobId === job.id)}
-                        >
-                          Apply
-                        </Button>
-                      </td>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </StyledTable>
+                {loading ? (
+                  <div className="text-center py-4">
+                    <Spinner animation="border" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </Spinner>
+                  </div>
+                ) : error ? (
+                  <Alert variant="danger">{error}</Alert>
+                ) : (
+                  <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    {recentJobs.map((job) => (
+                      <div key={job.id} className="col">
+                        <Card className="h-100 job-card">
+                          <Card.Body>
+                            <div className="d-flex justify-content-between align-items-start mb-3">
+                              <div>
+                                <Card.Title className="mb-1">{job.title}</Card.Title>
+                                <Card.Subtitle className="text-muted mb-2">
+                                  {job.department}
+                                </Card.Subtitle>
+                              </div>
+                              <Badge
+                                bg={job.status === 'OPEN' ? 'success' : 'secondary'}
+                                style={{
+                                  // background: job.status === 'OPEN' 
+                                  //   ? theme.colors.success.main 
+                                  //   : theme.colors.text.secondary,
+                                  padding: '0.5rem 1rem',
+                                  borderRadius: '1rem'
+                                }}
+                              >
+                                {job.status}
+                              </Badge>
+                            </div>
+
+                            <div className="job-details mb-3">
+                              <div className="detail-item">
+                                <FaMapMarkerAlt className="me-2" />
+                                <span>{job.location}</span>
+                              </div>
+                            </div>
+
+                            <div className="d-flex justify-content-between align-items-center">
+                              <div className="d-flex gap-2">
+                                <Button
+                                  variant="primary"
+                                  onClick={() => handleViewJobDetails(job)}
+                                  style={{
+                                    background: theme.colors.primary.gradientButton,
+                                    border: 'none',
+                                    padding: '0.5rem 1rem'
+                                  }}
+                                >
+                                  View Details
+                                </Button>
+                                {appliedJobs?.some(applied => applied.jobId === job.id) ? (
+                                  <Badge style={{ 
+                                    background: 'linear-gradient(to right, #0088cc, #00a3cc)',
+                                    padding: '0.5rem 1rem',
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                  }}>
+                                    APPLIED
+                                  </Badge>
+                                ) : (
+                                  <Button
+                                    variant="primary"
+                                    onClick={() => handleApplyJob(job)}
+                                    disabled={appliedJobs?.some(applied => applied.jobId === job.id)}
+                                    style={{
+                                      background: theme.colors.primary.gradientButton,
+                                      border: 'none',
+                                      padding: '0.5rem 1rem'
+                                    }}
+                                  >
+                                    Apply
+                                  </Button>
+                                )}
+                              </div>
+                              <small className="text-muted">
+                                Posted {new Date(job.createdAt).toLocaleDateString()}
+                              </small>
+                            </div>
+                          </Card.Body>
+                        </Card>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </Card.Body>
           </Card>
         </Col>
@@ -624,6 +678,66 @@ const CandidateDashboard = () => {
             </div>
           )}
         </Modal.Body>
+      </Modal>
+
+      {/* Job Details Modal */}
+      <Modal show={showJobDetailsModal} onHide={() => setShowJobDetailsModal(false)} size="lg">
+        <Modal.Header closeButton style={{ background: 'white', borderBottom: '1px solid #e5e7eb' }}>
+          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+            {selectedJob?.title}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ background: 'white' }}>
+          {selectedJob && (
+            <div>
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Department</h6>
+                <p className="mb-0">{selectedJob.department}</p>
+              </div>
+
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Location</h6>
+                <p className="mb-0">{selectedJob.location}</p>
+              </div>
+
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Job Type</h6>
+                <p className="mb-0">{selectedJob.type}</p>
+              </div>
+
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Salary</h6>
+                <p className="mb-0">{selectedJob.salary}</p>
+              </div>
+
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Description</h6>
+                <div 
+                  className="p-3 rounded" 
+                  style={{ 
+                    background: theme.colors.background,
+                    border: '1px solid #e5e7eb',
+                    minHeight: '100px'
+                  }}
+                  dangerouslySetInnerHTML={{ __html: selectedJob.description }}
+                />
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer style={{ background: 'white', borderTop: '1px solid #e5e7eb' }}>
+          <Button 
+            onClick={() => setShowJobDetailsModal(false)}
+            style={{ 
+              background: 'white',
+              border: '1px solid #e5e7eb',
+              color: theme.colors.text.primary,
+              boxShadow: 'none'
+            }}
+          >
+            Close
+          </Button>
+        </Modal.Footer>
       </Modal>
     </Container>
   );

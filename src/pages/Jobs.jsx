@@ -6,6 +6,7 @@ import jobService from '../services/jobService';
 import candidateService from '../services/candidateService';
 import { theme } from '../styles/theme';
 import StyledTable from '../components/common/StyledTable';
+import { FaMapMarkerAlt, FaBriefcase, FaMoneyBillWave } from 'react-icons/fa';
 
 const Jobs = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const Jobs = () => {
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('newest');
+  const [showJobDetailsModal, setShowJobDetailsModal] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -98,6 +100,11 @@ const Jobs = () => {
     } finally {
       setApplying(false);
     }
+  };
+
+  const handleViewJobDetails = (job) => {
+    setSelectedJob(job);
+    setShowJobDetailsModal(true);
   };
 
   if (loading) {
@@ -213,26 +220,44 @@ const Jobs = () => {
                       {job.status}
                     </Badge>
                   </td>
-                  {appliedJobs?.some(applied => applied.jobId === job.id) ? (
-                        <td>
+                  <td>
+                    <div className="d-flex gap-2">
+                      <Button
+                        variant="primary"
+                        onClick={() => handleViewJobDetails(job)}
+                        style={{
+                          background: theme.colors.primary.gradientButton,
+                          border: 'none',
+                          padding: '0.5rem 1rem'
+                        }}
+                      >
+                        View Details
+                      </Button>
+                      {appliedJobs?.some(applied => applied.jobId === job.id) ? (
                         <Badge style={{ 
-                          background:'linear-gradient(to right, #0088cc, #00a3cc)'
+                          background: 'linear-gradient(to right, #0088cc, #00a3cc)',
+                          padding: '0.5rem 1rem',
+                          display: 'flex',
+                          alignItems: 'center'
                         }}>
                           APPLIED
                         </Badge>
-                      </td>
-                      ):(
-                        <td>
+                      ) : (
                         <Button
-                          className="btn-gradient"
-                          size="sm"
+                          variant="primary"
                           onClick={() => handleApplyJob(job)}
                           disabled={appliedJobs?.some(applied => applied.jobId === job.id)}
+                          style={{
+                            background: theme.colors.primary.gradientButton,
+                            border: 'none',
+                            padding: '0.5rem 1rem'
+                          }}
                         >
                           Apply
                         </Button>
-                      </td>
                       )}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -286,6 +311,66 @@ const Jobs = () => {
             ) : (
               'Confirm'
             )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Job Details Modal */}
+      <Modal show={showJobDetailsModal} onHide={() => setShowJobDetailsModal(false)} size="lg">
+        <Modal.Header closeButton style={{ background: 'white', borderBottom: '1px solid #e5e7eb' }}>
+          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+            {selectedJob?.title}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ background: 'white' }}>
+          {selectedJob && (
+            <div>
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Department</h6>
+                <p className="mb-0">{selectedJob.department}</p>
+              </div>
+
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Location</h6>
+                <p className="mb-0">{selectedJob.location}</p>
+              </div>
+
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Job Type</h6>
+                <p className="mb-0">{selectedJob.type}</p>
+              </div>
+
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Salary</h6>
+                <p className="mb-0">{selectedJob.salary}</p>
+              </div>
+
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Description</h6>
+                <div 
+                  className="p-3 rounded" 
+                  style={{ 
+                    background: theme.colors.background,
+                    border: '1px solid #e5e7eb',
+                    minHeight: '100px'
+                  }}
+                  dangerouslySetInnerHTML={{ __html: selectedJob.description }}
+                />
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer style={{ background: 'white', borderTop: '1px solid #e5e7eb' }}>
+          <Button 
+            onClick={() => setShowJobDetailsModal(false)}
+            style={{ 
+              background: 'white',
+              border: '1px solid #e5e7eb',
+              color: theme.colors.text.primary,
+              boxShadow: 'none'
+            }}
+          >
+            Close
           </Button>
         </Modal.Footer>
       </Modal>
