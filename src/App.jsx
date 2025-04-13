@@ -40,8 +40,8 @@ const PrivateRoute = ({ children, allowedRoles }) => {
 function App() {
   return (
     <AuthProvider>
-      <div className="d-flex flex-column min-vh-100">
-        <main className="flex-grow-1">
+      <div className="d-flex flex-column min-vh-100" style={{ background: 'linear-gradient(to right, #0088cc, #00a3cc)' }}>
+        <main className="flex-grow-1" style={{ background: 'linear-gradient(to right, #0088cc, #00a3cc)' }}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />

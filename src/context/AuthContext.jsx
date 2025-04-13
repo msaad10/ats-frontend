@@ -18,8 +18,7 @@ export const AuthProvider = ({ children }) => {
         const decodedToken = parseJwt(token);
         setUser({
           id: decodedToken.userId,
-          firstName: decodedToken.firstName,
-          lastName: decodedToken.lastName,
+          userName: decodedToken.userName,
           email: decodedToken.email,
           role: decodedToken.role
         });
