@@ -6,9 +6,10 @@ import { saveAs } from 'file-saver';
 import jobService from '../services/jobService';
 import candidateService from '../services/candidateService';
 import interviewService from '../services/interviewService';
-import { FaDownload, FaCalendarAlt, FaEye } from 'react-icons/fa';
+import { FaDownload, FaCalendarAlt, FaEye, FaStar } from 'react-icons/fa';
 import StyledTable from '../components/common/StyledTable';
 import { theme } from '../styles/theme';
+import StarRating from '../components/common/StarRating';
 
 const RecruiterJobDetail = () => {
   const { jobId } = useParams();
@@ -35,6 +36,8 @@ const RecruiterJobDetail = () => {
   const [loadingFeedback, setLoadingFeedback] = useState(false);
   const [feedbackError, setFeedbackError] = useState('');
   const [candidateInterviews, setCandidateInterviews] = useState([]);
+  const [showFeedbackDetailsModal, setShowFeedbackDetailsModal] = useState(false);
+  const [selectedFeedback, setSelectedFeedback] = useState(null);
 
   console.log(selectedCandidate, "selectedCandidate");
   useEffect(() => {
@@ -172,6 +175,11 @@ const RecruiterJobDetail = () => {
     }
   };
 
+  const handleViewFeedbackDetails = (interview) => {
+    setSelectedFeedback(interview);
+    setShowFeedbackDetailsModal(true);
+  };
+
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
@@ -267,6 +275,7 @@ const RecruiterJobDetail = () => {
                     <th>Email</th>
                     <th>Applied Date</th>
                     <th>Status</th>
+                    <th>Match Score</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -276,10 +285,13 @@ const RecruiterJobDetail = () => {
                       <td style={{ color: theme.colors.text.primary }}>{candidate.userName}</td>
                       <td style={{ color: theme.colors.text.secondary }}>{candidate.email}</td>
                       <td style={{ color: theme.colors.text.secondary }}>
-                        {new Date(candidate.appliedAt	).toLocaleDateString()}
+                        {new Date(candidate.appliedAt).toLocaleDateString()}
                       </td>
                       <td>
                         {getStatusBadge(candidate.currentStage)}
+                      </td>
+                      <td>
+                        {candidate.matchScore}
                       </td>
                       <td>
                         <div className="d-flex gap-2">
@@ -296,7 +308,7 @@ const RecruiterJobDetail = () => {
                             </Button>
                           </OverlayTrigger>
 
-                          {!candidate.interview && (
+                          
                             <OverlayTrigger
                               placement="top"
                               overlay={<Tooltip>Schedule Interview</Tooltip>}
@@ -309,22 +321,19 @@ const RecruiterJobDetail = () => {
                                 <FaCalendarAlt />
                               </Button>
                             </OverlayTrigger>
-                          )}
 
-                          {candidate.interview && (
                             <OverlayTrigger
-                              placement="top"
-                              overlay={<Tooltip>View Interviews</Tooltip>}
-                            >
-                              <Button
-                                className="btn-gradient"
-                                size="sm"
-                                onClick={() => handleViewFeedback(candidate)}
+                                placement="top"
+                                overlay={<Tooltip>View Interviews</Tooltip>}
                               >
-                                <FaEye />
-                              </Button>
-                            </OverlayTrigger>
-                          )}
+                                <Button
+                                  className="btn-gradient"
+                                  size="sm"
+                                  onClick={() => handleViewFeedback(candidate)}
+                                >
+                                  <FaEye />
+                                </Button>
+                              </OverlayTrigger>
                         </div>
                       </td>
                     </tr>
@@ -381,9 +390,9 @@ const RecruiterJobDetail = () => {
                 }}
               >
                 <option value="">Select Type</option>
-                <option value="TECHNICAL">Technical</option>
-                <option value="BEHAVIORAL">Behavioral</option>
-                <option value="HR">HR</option>
+                <option value="INITIAL_SCREENING">Initial Screening</option>
+                <option value="ARCHITECT">Architect</option>
+                <option value="DIRECTOR">DIRECTOR</option>
               </Form.Select>
             </Form.Group>
 
@@ -484,8 +493,21 @@ const RecruiterJobDetail = () => {
                     <td>
                       {getStageBadge(interview.result)}
                     </td>
-                    <td className="text-break" style={{ maxWidth: '300px', color: theme.colors.text.secondary }}>
-                      {interview.feedback || '-'}
+
+                    <td>
+                      <Button
+                        className="btn-gradient"
+                        size="sm"
+                        onClick={() => handleViewFeedbackDetails(interview)}
+                        style={{
+                          border: 'none',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        View Details
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -506,6 +528,73 @@ const RecruiterJobDetail = () => {
             Close
           </Button>
         </Modal.Footer>
+      </Modal>
+
+      {/* Feedback Details Modal */}
+      <Modal show={showFeedbackDetailsModal} onHide={() => setShowFeedbackDetailsModal(false)}>
+        <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)`, borderBottom: '1px solid #e5e7eb' }}>
+          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+            Interview Feedback Details
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ background: 'white' }}>
+          {selectedFeedback && (
+            <div>
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Interview Type</h6>
+                <p className="mb-0">{selectedFeedback.interviewType}</p>
+              </div>
+
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Result</h6>
+                <Badge style={{ 
+                  background: selectedFeedback.result === 'PASSED' ? 'linear-gradient(to right, #28a745, #20c997)' :
+                            'linear-gradient(to right, #dc3545, #c82333)'
+                }}>
+                  {selectedFeedback.result}
+                </Badge>
+              </div>
+
+              {selectedFeedback.interviewScores && selectedFeedback.interviewScores.length > 0 && (
+                <div className="mb-4">
+                  <h6 className="text-muted mb-3">Interview Scores</h6>
+                  <div className="d-flex flex-column gap-3">
+                    {selectedFeedback.interviewScores.map((score, index) => (
+                      <div key={index}>
+                        <label className="text-muted mb-1">
+                          {score.criteria.charAt(0).toUpperCase() + score.criteria.slice(1).replace(/([A-Z])/g, ' $1')}
+                        </label>
+                        <div className="d-flex align-items-center gap-2">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <FaStar
+                              key={star}
+                              size={20}
+                              color={star <= score.score ? theme.colors.primary : '#e4e5e9'}
+                            />
+                          ))}
+                          <span className="ms-2 text-muted">{score.score} / 5</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <h6 className="text-muted mb-2">Feedback</h6>
+                <div 
+                  className="p-3 rounded" 
+                  style={{ 
+                    background: theme.colors.background,
+                    border: '1px solid #e5e7eb',
+                    minHeight: '100px'
+                  }}
+                  dangerouslySetInnerHTML={{ __html: selectedFeedback.feedback }}
+                />
+              </div>
+            </div>
+          )}
+        </Modal.Body>
       </Modal>
     </Container>
   );

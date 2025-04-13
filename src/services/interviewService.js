@@ -17,7 +17,7 @@ const interviewService = {
   },
 
   updateInterviewStatus: async (interviewId, data) => {
-    const response = await api.put(`/interviews/${interviewId}/status`, data);
+    const response = await api.put(`/interviews/${interviewId}/result`, data);
     return response.data;
   },
 

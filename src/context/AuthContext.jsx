@@ -99,23 +99,7 @@ export const AuthProvider = ({ children }) => {
       };
       setUser(newUserData);
 
-      // Redirect based on role
-      switch (decodedToken.role) {
-        case 'ADMIN':
-          navigate('/admin');
-          break;
-        case 'RECRUITER':
-          navigate('/recruiter');
-          break;
-        case 'INTERVIEWER':
-          navigate('/interviewer');
-          break;
-        case 'CANDIDATE':
-          navigate('/candidate');
-          break;
-        default:
-          navigate('/');
-      }
+      navigate('/login');
     } catch (error) {
       throw error;
     }

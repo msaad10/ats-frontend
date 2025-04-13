@@ -6,6 +6,9 @@ import jobService from '../services/jobService';
 import candidateService from '../services/candidateService';
 import StyledTable from '../components/common/StyledTable';
 import { theme } from '../styles/theme';
+import { FaEye, FaStar } from 'react-icons/fa';
+import StarRating from '../components/common/StarRating';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 const CandidateDashboard = () => {
   const navigate = useNavigate();
@@ -22,6 +25,12 @@ const CandidateDashboard = () => {
   const [uploadError, setUploadError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [showFeedbackDetailsModal, setShowFeedbackDetailsModal] = useState(false);
+  const [selectedFeedback, setSelectedFeedback] = useState(null);
+  const [candidateInterviews, setCandidateInterviews] = useState([]);
+  const [loadingFeedback, setLoadingFeedback] = useState(false);
+  const [feedbackError, setFeedbackError] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -80,29 +89,50 @@ const CandidateDashboard = () => {
     try {
       setLoading(true);
       setError(null);
-
+      setShowModal(false);
       await candidateService.applyForJob({
         jobId: selectedJob.id,
         userId: user.id
       });
       
       const [jobsResponse, appliedJobsResponse] = await Promise.all([
-        jobService.getJobs(),
+        jobService.getAllJobs(),
         candidateService.getAppliedJobs(user.id)
       ]);
 
       setJobs(jobsResponse);
       setAppliedJobs(appliedJobsResponse);
       
-      setShowModal(false);
+      
       setSelectedJob(null);
       setSuccess('Successfully applied for the job!');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to apply for job');
+      console.log(err);
+      setError(err.response?.data?.message || 'Please upload resume first');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleViewFeedback = async (job) => {
+    try {
+      setLoadingFeedback(true);
+      setFeedbackError('');
+      const response = await candidateService.getCandidateInterviews(job.id);
+      setCandidateInterviews(response);
+      setShowFeedbackModal(true);
+    } catch (err) {
+      setFeedbackError('Failed to fetch interview details');
+      console.error(err);
+    } finally {
+      setLoadingFeedback(false);
+    }
+  };
+
+  const handleViewFeedbackDetails = (interview) => {
+    setSelectedFeedback(interview);
+    setShowFeedbackDetailsModal(true);
   };
 
   if (loading) {
@@ -138,7 +168,7 @@ const CandidateDashboard = () => {
             </Card.Header>
             <Card.Body>
               <p style={{ color: theme.colors.text.secondary }}>
-                {appliedJobs?.length > 0 
+                {appliedJobs?.length > 0
                   ? 'Your resume has been uploaded and is being used for job applications.'
                   : 'Upload your resume to start applying for jobs.'}
               </p>
@@ -198,16 +228,29 @@ const CandidateDashboard = () => {
                           {job.status}
                         </Badge>
                       </td>
-                      <td>
+
+                      {appliedJobs?.some(applied => applied.jobId === job.id) ? (
+                        <td>
+                        <Badge style={{ 
+                          background:'linear-gradient(to right, #0088cc, #00a3cc)'
+                        }}>
+                          APPLIED
+                        </Badge>
+                      </td>
+                      ):(
+                        <td>
                         <Button
                           className="btn-gradient"
                           size="sm"
                           onClick={() => handleApplyJob(job)}
                           disabled={appliedJobs?.some(applied => applied.jobId === job.id)}
                         >
-                          {appliedJobs?.some(applied => applied.jobId === job.id) ? 'Applied' : 'Apply'}
+                          Apply
                         </Button>
                       </td>
+                      )}
+                      
+                      
                     </tr>
                   ))}
                 </tbody>
@@ -232,15 +275,16 @@ const CandidateDashboard = () => {
                     <th>Department</th>
                     <th>Applied Date</th>
                     <th>Status</th>
+                   <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {appliedJobs.map(job => (
+                  {appliedJobs.map((job) => (
                     <tr key={job.id}>
                       <td style={{ color: theme.colors.text.primary }}>{job.jobTitle}</td>
-                      <td style={{ color: theme.colors.text.secondary }}>{job.jobDepartment	}</td>
+                      <td style={{ color: theme.colors.text.secondary }}>{job.jobDepartment}</td>
                       <td style={{ color: theme.colors.text.secondary }}>
-                        {new Date(job.appliedAt	).toLocaleDateString()}
+                        {new Date(job.appliedAt).toLocaleDateString()}
                       </td>
                       <td>
                         <Badge style={{ 
@@ -252,6 +296,55 @@ const CandidateDashboard = () => {
                           {job.currentStage}
                         </Badge>
                       </td>
+                      {job.currentStage !== 'APPLIED' ? (
+                         <td>
+                         <div className="d-flex gap-2">
+                           <OverlayTrigger
+                             placement="top"
+                             overlay={<Tooltip>View Feedback</Tooltip>}
+                           >
+                             <Button
+                               className="btn-gradient"
+                               size="sm"
+                               onClick={() => handleViewFeedback(job)}
+                               style={{
+                                 border: 'none',
+                                 padding: '0.5rem',
+                                 display: 'inline-flex',
+                                 alignItems: 'center',
+                                 justifyContent: 'center'
+                               }}
+                             >
+                               <FaEye />
+                             </Button>
+                           </OverlayTrigger>
+                         </div>
+                       </td>
+                      ) : (
+                          <td>
+                          <div className="d-flex gap-2">
+                            <OverlayTrigger
+                              placement="top"
+                              overlay={<Tooltip>Feedback not available</Tooltip>}
+                            >
+                              <Button
+                                className="btn-gradient"
+                                size="sm"
+                                style={{
+                                  border: 'none',
+                                  padding: '0.5rem',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}
+                              >
+                                <FaEye />
+                              </Button>
+                            </OverlayTrigger>
+                          </div>
+                        </td>
+                      )}
+
                     </tr>
                   ))}
                 </tbody>
@@ -285,7 +378,7 @@ const CandidateDashboard = () => {
                 }}
               />
               <Form.Text style={{ color: theme.colors.text.secondary }}>
-                Supported formats: PDF, DOC, DOCX
+                Supported formats: PDF
               </Form.Text>
             </Form.Group>
             {uploadError && <Alert variant="danger">{uploadError}</Alert>}
@@ -379,6 +472,156 @@ const CandidateDashboard = () => {
             )}
           </Button>
         </Modal.Footer>
+      </Modal>
+
+      {/* Feedback Modal */}
+      <Modal show={showFeedbackModal} onHide={() => setShowFeedbackModal(false)} size="lg">
+        <Modal.Header closeButton style={{ background: 'white', borderBottom: '1px solid #e5e7eb' }}>
+          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+            Interview Feedback
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ background: 'white', maxHeight: '70vh', overflowY: 'auto' }}>
+          {loadingFeedback ? (
+            <div className="text-center">
+              <Spinner animation="border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+            </div>
+          ) : feedbackError ? (
+            <Alert variant="danger">{feedbackError}</Alert>
+          ) : candidateInterviews.length === 0 ? (
+            <Alert variant="info">No interviews scheduled yet.</Alert>
+          ) : (
+            <StyledTable>
+              <thead>
+                <tr>
+                  <th>Interview Type</th>
+                  <th>Date & Time</th>
+                  <th>Interviewer</th>
+                  <th>Result</th>
+                  <th>Feedback</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {candidateInterviews.map((interview) => (
+                  <tr key={interview.id}>
+                    <td style={{ color: theme.colors.text.primary }}>{interview.interviewType}</td>
+                    <td style={{ color: theme.colors.text.secondary }}>
+                      {new Date(interview.dateTime).toLocaleString()}
+                    </td>
+                    <td style={{ color: theme.colors.text.secondary }}>
+                      {interview.interviewer?.name || interview.interviewerName || '-'}
+                    </td>
+                    <td>
+                      {getStageBadge(interview.result)}
+                    </td>
+                    <td className="text-break" style={{ maxWidth: '300px', color: theme.colors.text.secondary }}>
+                      {interview.feedback || '-'}
+                    </td>
+                    <td>
+                      <Button
+                        className="btn-gradient"
+                        size="sm"
+                        onClick={() => handleViewFeedbackDetails(interview)}
+                        style={{
+                          border: 'none',
+                          padding: '0.5rem',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        View Details
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </StyledTable>
+          )}
+        </Modal.Body>
+        <Modal.Footer style={{ background: 'white', borderTop: '1px solid #e5e7eb' }}>
+          <Button 
+            onClick={() => setShowFeedbackModal(false)}
+            style={{ 
+              background: 'white',
+              border: '1px solid #e5e7eb',
+              color: theme.colors.text.primary,
+              boxShadow: 'none'
+            }}
+          >
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Feedback Details Modal */}
+      <Modal show={showFeedbackDetailsModal} onHide={() => setShowFeedbackDetailsModal(false)}>
+        <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)`, borderBottom: '1px solid #e5e7eb' }}>
+          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+            Interview Feedback Details
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ background: 'white' }}>
+          {selectedFeedback && (
+            <div>
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Interview Type</h6>
+                <p className="mb-0">{selectedFeedback.interviewType}</p>
+              </div>
+
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Result</h6>
+                <Badge style={{ 
+                  background: selectedFeedback.result === 'PASS' ? 'linear-gradient(to right, #28a745, #20c997)' :
+                            'linear-gradient(to right, #dc3545, #c82333)'
+                }}>
+                  {selectedFeedback.result}
+                </Badge>
+              </div>
+
+              {selectedFeedback.interviewScores && selectedFeedback.interviewScores.length > 0 && (
+                <div className="mb-4">
+                  <h6 className="text-muted mb-3">Interview Scores</h6>
+                  <div className="d-flex flex-column gap-3">
+                    {selectedFeedback.interviewScores.map((score, index) => (
+                      <div key={index}>
+                        <label className="text-muted mb-1">
+                          {score.criteria.charAt(0).toUpperCase() + score.criteria.slice(1).replace(/([A-Z])/g, ' $1')}
+                        </label>
+                        <div className="d-flex align-items-center gap-2">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <FaStar
+                              key={star}
+                              size={20}
+                              color={star <= score.score ? theme.colors.primary : '#e4e5e9'}
+                            />
+                          ))}
+                          <span className="ms-2 text-muted">{score.score} / 5</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <h6 className="text-muted mb-2">Feedback</h6>
+                <div 
+                  className="p-3 rounded" 
+                  style={{ 
+                    background: theme.colors.background,
+                    border: '1px solid #e5e7eb',
+                    minHeight: '100px'
+                  }}
+                  dangerouslySetInnerHTML={{ __html: selectedFeedback.feedback }}
+                />
+              </div>
+            </div>
+          )}
+        </Modal.Body>
       </Modal>
     </Container>
   );

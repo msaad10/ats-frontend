@@ -5,9 +5,11 @@ import { useAuth } from '../context/AuthContext';
 import { saveAs } from 'file-saver';
 import interviewService from '../services/interviewService';
 import candidateService from '../services/candidateService';
-import { FaDownload, FaCommentDots } from 'react-icons/fa';
+import { FaDownload, FaCommentDots, FaEye, FaStar } from 'react-icons/fa';
 import StyledTable from '../components/common/StyledTable';
 import { theme } from '../styles/theme';
+import StarRating from '../components/common/StarRating';
+import RichTextEditor from '../components/common/RichTextEditor';
 
 const InterviewerDashboard = () => {
   const [interviews, setInterviews] = useState([]);
@@ -17,10 +19,16 @@ const InterviewerDashboard = () => {
   const [selectedInterview, setSelectedInterview] = useState(null);
   const [feedbackForm, setFeedbackForm] = useState({
     result: '',
-    feedback: ''
+    feedback: '',
+    logicBuilding: '0',
+    oop: '0',
+    database: '0',
+    communication: '0'
   });
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [showFeedbackDetailsModal, setShowFeedbackDetailsModal] = useState(false);
+  const [selectedFeedback, setSelectedFeedback] = useState(null);
 
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -71,7 +79,11 @@ const InterviewerDashboard = () => {
     setSelectedInterview(interview);
     setFeedbackForm({
       result: '',
-      feedback: ''
+      feedback: '',
+      logicBuilding: '0',
+      oop: '0',
+      database: '0',
+      communication: '0'
     });
     setFormErrors({});
     setShowFeedbackModal(true);
@@ -79,7 +91,7 @@ const InterviewerDashboard = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFeedbackForm(prev => ({
       ...prev,
       [name]: value
     }));
@@ -109,29 +121,52 @@ const InterviewerDashboard = () => {
 
   const handleFeedbackSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validate form
-    const errors = {};
-    if (!feedbackForm.result) errors.result = 'Result is required';
-    if (!feedbackForm.feedback) errors.feedback = 'Feedback is required';
-    
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-
     try {
       setSubmitting(true);
-      await interviewService.updateInterviewStatus(selectedInterview.id, {
-        result: feedbackForm.result,
-        feedback: feedbackForm.feedback
-      });
+      setError(null);
+
+      const interviewScores = [];
       
-      // Close modal and refresh interviews
+      // Add scores based on interview type
+      if (selectedInterview?.interviewType === 'INITIAL_SCREENING' || 
+          selectedInterview?.interviewType === 'ARCHITECT' || 
+          selectedInterview?.interviewType === 'DIRECTOR') {
+        interviewScores.push(
+          { criteria: 'logicBuilding', score: parseInt(feedbackForm.logicBuilding) },
+          { criteria: 'oop', score: parseInt(feedbackForm.oop) },
+          { criteria: 'db', score: parseInt(feedbackForm.database) }
+        );
+      }
+
+      // Add communication score for DIRECTOR interviews
+      if (selectedInterview?.interviewType === 'DIRECTOR') {
+        interviewScores.push({ criteria: 'communication', score: parseInt(feedbackForm.communication) });
+      }
+
+      const submitData = {
+        result: feedbackForm.result,
+        feedback: feedbackForm.feedback,
+        scores: interviewScores
+      };
+
+      await interviewService.updateInterviewStatus(selectedInterview.id, submitData);
+      
+      // Refresh interviews list
+      const response = await interviewService.getInterviewerInterviews();
+      setInterviews(response);
+      
       setShowFeedbackModal(false);
-      fetchInterviews();
+      setSelectedInterview(null);
+      setFeedbackForm({
+        result: '',
+        feedback: '',
+        logicBuilding: '0',
+        oop: '0',
+        database: '0',
+        communication: '0'
+      });
     } catch (err) {
-      setError('Failed to submit feedback');
+      setError(err.response?.data?.message || 'Failed to submit feedback');
       console.error(err);
     } finally {
       setSubmitting(false);
@@ -140,6 +175,11 @@ const InterviewerDashboard = () => {
 
   const handleLogout = () => {
     logout();
+  };
+
+  const handleViewFeedbackDetails = (interview) => {
+    setSelectedFeedback(interview);
+    setShowFeedbackDetailsModal(true);
   };
 
   if (loading) {
@@ -226,25 +266,47 @@ const InterviewerDashboard = () => {
                           <FaDownload />
                         </Button>
                       </OverlayTrigger>
-                      <OverlayTrigger
-                        placement="top"
-                        overlay={<Tooltip>Give Feedback</Tooltip>}
-                      >
-                        <Button
-                          className="btn-gradient"
-                          size="sm"
-                          onClick={() => handleGiveFeedback(interview)}
-                          style={{
-                            border: 'none',
-                            padding: '0.5rem',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                          }}
+                      {!interview.interviewScores ? (
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={<Tooltip>Give Feedback</Tooltip>}
                         >
-                          <FaCommentDots />
-                        </Button>
-                      </OverlayTrigger>
+                          <Button
+                            className="btn-gradient"
+                            size="sm"
+                            onClick={() => handleGiveFeedback(interview)}
+                            style={{
+                              border: 'none',
+                              padding: '0.5rem',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <FaCommentDots />
+                          </Button>
+                        </OverlayTrigger>
+                      ) : (
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={<Tooltip>View Feedback</Tooltip>}
+                        >
+                          <Button
+                            className="btn-gradient"
+                            size="sm"
+                            onClick={() => handleViewFeedbackDetails(interview)}
+                            style={{
+                              border: 'none',
+                              padding: '0.5rem',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <FaEye />
+                          </Button>
+                        </OverlayTrigger>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -264,17 +326,11 @@ const InterviewerDashboard = () => {
         <Modal.Body style={{ background: 'white' }}>
           <Form onSubmit={handleFeedbackSubmit}>
             <Form.Group className="mb-3">
-              <Form.Label>Interview Result</Form.Label>
+              <Form.Label>Result</Form.Label>
               <Form.Select
-                name="result"
                 value={feedbackForm.result}
-                onChange={handleFeedbackInputChange}
+                onChange={(e) => setFeedbackForm({ ...feedbackForm, result: e.target.value })}
                 required
-                style={{ 
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '0.375rem',
-                  padding: '0.5rem'
-                }}
               >
                 <option value="">Select Result</option>
                 <option value="PASSED">Pass</option>
@@ -282,20 +338,46 @@ const InterviewerDashboard = () => {
               </Form.Select>
             </Form.Group>
 
+            {(selectedInterview?.interviewType === 'INITIAL_SCREENING' || 
+              selectedInterview?.interviewType === 'ARCHITECT' || 
+              selectedInterview?.interviewType === 'DIRECTOR') && (
+              <>
+                <StarRating
+                  label="Programming and Logic Building"
+                  value={feedbackForm.logicBuilding}
+                  onChange={(value) => setFeedbackForm({ ...feedbackForm, logicBuilding: value })}
+                  required
+                />
+                <StarRating
+                  label="Object Oriented Programming"
+                  value={feedbackForm.oop}
+                  onChange={(value) => setFeedbackForm({ ...feedbackForm, oop: value })}
+                  required
+                />
+                <StarRating
+                  label="Database"
+                  value={feedbackForm.database}
+                  onChange={(value) => setFeedbackForm({ ...feedbackForm, database: value })}
+                  required
+                />
+              </>
+            )}
+
+            {selectedInterview?.interviewType === 'DIRECTOR' && (
+              <StarRating
+                label="Communication and Behavioral"
+                value={feedbackForm.communication}
+                onChange={(value) => setFeedbackForm({ ...feedbackForm, communication: value })}
+                required
+              />
+            )}
+
             <Form.Group className="mb-3">
               <Form.Label>Feedback</Form.Label>
-              <Form.Control
-                as="textarea"
-                name="feedback"
+              <RichTextEditor
                 value={feedbackForm.feedback}
-                onChange={handleFeedbackInputChange}
-                rows={4}
-                required
-                style={{ 
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '0.375rem',
-                  padding: '0.5rem'
-                }}
+                onChange={(value) => setFeedbackForm({ ...feedbackForm, feedback: value })}
+                placeholder="Enter your feedback here..."
               />
             </Form.Group>
 
@@ -309,15 +391,82 @@ const InterviewerDashboard = () => {
                 fontSize: '1rem',
                 fontWeight: 500
               }}
-              disabled={submitting}
+              disabled={loading}
             >
-              {submitting ? (
+              {loading ? (
                 <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
               ) : (
                 'Submit Feedback'
               )}
             </Button>
           </Form>
+        </Modal.Body>
+      </Modal>
+
+      {/* Feedback Details Modal */}
+      <Modal show={showFeedbackDetailsModal} onHide={() => setShowFeedbackDetailsModal(false)}>
+        <Modal.Header closeButton style={{ background: `rgb(106, 17, 203)`, borderBottom: '1px solid #e5e7eb' }}>
+          <Modal.Title style={{ color: theme.colors.text.primary, fontSize: '1.25rem', fontWeight: 500 }}>
+            Interview Feedback Details
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ background: 'white' }}>
+          {selectedFeedback && (
+            <div>
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Interview Type</h6>
+                <p className="mb-0">{selectedFeedback.interviewType}</p>
+              </div>
+
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Result</h6>
+                <Badge style={{ 
+                  background: selectedFeedback.result === 'PASSED' ? 'linear-gradient(to right, #28a745, #20c997)' :
+                            'linear-gradient(to right, #dc3545, #c82333)'
+                }}>
+                  {selectedFeedback.result}
+                </Badge>
+              </div>
+
+              {selectedFeedback.interviewScores && selectedFeedback.interviewScores.length > 0 && (
+                <div className="mb-4">
+                  <h6 className="text-muted mb-3">Interview Scores</h6>
+                  <div className="d-flex flex-column gap-3">
+                    {selectedFeedback.interviewScores.map((score, index) => (
+                      <div key={index}>
+                        <label className="text-muted mb-1">
+                          {score.criteria.charAt(0).toUpperCase() + score.criteria.slice(1).replace(/([A-Z])/g, ' $1')}
+                        </label>
+                        <div className="d-flex align-items-center gap-2">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <FaStar
+                              key={star}
+                              size={20}
+                              color={star <= score.score ? theme.colors.primary : '#e4e5e9'}
+                            />
+                          ))}
+                          <span className="ms-2 text-muted">{score.score} / 5</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <h6 className="text-muted mb-2">Feedback</h6>
+                <div 
+                  className="p-3 rounded" 
+                  style={{ 
+                    background: theme.colors.background,
+                    border: '1px solid #e5e7eb',
+                    minHeight: '100px'
+                  }}
+                  dangerouslySetInnerHTML={{ __html: selectedFeedback.feedback }}
+                />
+              </div>
+            </div>
+          )}
         </Modal.Body>
       </Modal>
     </Container>

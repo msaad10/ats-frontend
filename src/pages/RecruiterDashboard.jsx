@@ -293,6 +293,7 @@ const RecruiterDashboard = () => {
                     <th>Title</th>
                     <th>Department</th>
                     <th>Location</th>
+                    <th>Created Date</th>
                     <th>Status</th>
                     <th>Applications</th>
                     <th>Actions</th>
@@ -304,6 +305,7 @@ const RecruiterDashboard = () => {
                       <td style={{ color: theme.colors.text.primary }}>{job.title}</td>
                       <td style={{ color: theme.colors.text.secondary }}>{job.department}</td>
                       <td style={{ color: theme.colors.text.secondary }}>{job.location}</td>
+                      <td style={{ color: theme.colors.text.secondary }}>{new Date(job.createdAt).toLocaleDateString()}</td>
                       <td>
                         <Badge style={{ 
                           background: job.status === 'OPEN' ? theme.colors.primary.gradientButton :
@@ -528,78 +530,83 @@ const RecruiterDashboard = () => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ background: 'white' }}>
-          <Form>
+          <Form onSubmit={handleEditSubmit}>
             <Form.Group className="mb-3">
-              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>Title</Form.Label>
+              <Form.Label>Title</Form.Label>
               <Form.Control
                 type="text"
                 name="title"
                 value={editJobForm.title}
                 onChange={(e) => setEditJobForm({ ...editJobForm, title: e.target.value })}
-                style={{ 
+                required
+                style={{
+                  background: 'white',
                   border: '1px solid #e5e7eb',
-                  borderRadius: '0.375rem',
-                  padding: '0.5rem'
+                  color: theme.colors.text.primary
                 }}
               />
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>Department</Form.Label>
-              <Form.Control
-                type="text"
+              <Form.Label>Department</Form.Label>
+              <Form.Select
                 name="department"
                 value={editJobForm.department}
                 onChange={(e) => setEditJobForm({ ...editJobForm, department: e.target.value })}
-                style={{ 
+                required
+                style={{
+                  background: 'white',
                   border: '1px solid #e5e7eb',
-                  borderRadius: '0.375rem',
-                  padding: '0.5rem'
+                  color: theme.colors.text.primary
                 }}
-              />
+              >
+                <option value="">Select Department</option>
+                {departments.map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </Form.Select>
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>Location</Form.Label>
-              <Form.Control
-                type="text"
+              <Form.Label>Location</Form.Label>
+              <Form.Select
                 name="location"
                 value={editJobForm.location}
                 onChange={(e) => setEditJobForm({ ...editJobForm, location: e.target.value })}
-                style={{ 
+                required
+                style={{
+                  background: 'white',
                   border: '1px solid #e5e7eb',
-                  borderRadius: '0.375rem',
-                  padding: '0.5rem'
+                  color: theme.colors.text.primary
                 }}
-              />
+              >
+                <option value="">Select Location</option>
+                {locations.map(loc => (
+                  <option key={loc} value={loc}>{loc}</option>
+                ))}
+              </Form.Select>
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={4}
-                name="description"
+              <Form.Label>Description</Form.Label>
+              <RichTextEditor
                 value={editJobForm.description}
-                onChange={(e) => setEditJobForm({ ...editJobForm, description: e.target.value })}
-                style={{ 
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '0.375rem',
-                  padding: '0.5rem'
-                }}
+                onChange={(value) => setEditJobForm({ ...editJobForm, description: value })}
+                placeholder="Enter job description..."
               />
             </Form.Group>
 
             <Form.Group className="mb-3">
-              <Form.Label style={{ color: theme.colors.text.primary, fontWeight: 500 }}>Status</Form.Label>
+              <Form.Label>Status</Form.Label>
               <Form.Select
                 name="status"
                 value={editJobForm.status}
                 onChange={(e) => setEditJobForm({ ...editJobForm, status: e.target.value })}
-                style={{ 
+                required
+                style={{
+                  background: 'white',
                   border: '1px solid #e5e7eb',
-                  borderRadius: '0.375rem',
-                  padding: '0.5rem'
+                  color: theme.colors.text.primary
                 }}
               >
                 <option value="OPEN">Open</option>
@@ -607,41 +614,27 @@ const RecruiterDashboard = () => {
                 <option value="DRAFT">Draft</option>
               </Form.Select>
             </Form.Group>
+
+            <Button
+              type="submit"
+              className="w-100"
+              style={{
+                background: theme.colors.primary.gradientButton,
+                border: 'none',
+                padding: '0.75rem',
+                fontSize: '1rem',
+                fontWeight: 500
+              }}
+              disabled={loading}
+            >
+              {loading ? (
+                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+              ) : (
+                'Update Job'
+              )}
+            </Button>
           </Form>
         </Modal.Body>
-        <Modal.Footer style={{ background: 'white', borderTop: '1px solid #e5e7eb' }}>
-          <Button 
-            onClick={() => setShowEditJobModal(false)}
-            style={{ 
-              background: 'white',
-              border: '1px solid #e5e7eb',
-              color: theme.colors.text.primary,
-              boxShadow: 'none'
-            }}
-          >
-            Cancel
-          </Button>
-          <Button 
-            className="btn-gradient"
-            onClick={handleEditSubmit}
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                />
-                <span className="ms-2">Updating...</span>
-              </>
-            ) : (
-              'Update Job'
-            )}
-          </Button>
-        </Modal.Footer>
       </Modal>
 
       {/* Feedback Modal */}

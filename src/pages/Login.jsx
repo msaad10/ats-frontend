@@ -47,7 +47,7 @@ const Login = () => {
                     background: theme.colors.primary.gradientButton
                   }}></div>
                 </div>
-                <span className="h4 mb-0 text-white">ATS</span>
+                <span className="h4 mb-0 text-white">HirePearls</span>
               </div>
             </div>
             <div className="welcome-content mt-5">
